@@ -41,8 +41,15 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
+    console.log("=== LOGIN ATTEMPT ===");
+    console.log("Email:", data.email);
+    console.log("Password length:", data.password.length);
+    console.log("Data being sent:", data);
+    
     try {
+      console.log("Sending request to /api/auth/login");
       const result = await apiRequest("POST", "/api/auth/login", data);
+      console.log("Login successful, received token");
       setAuthToken(result.token);
       setAuthUser(result.user);
       toast({
@@ -51,6 +58,8 @@ export default function LoginPage() {
       });
       setLocation("/");
     } catch (error: any) {
+      console.error("Login error:", error);
+      console.error("Error message:", error.message);
       toast({
         title: "Login failed",
         description: error.message || "Invalid email or password",
