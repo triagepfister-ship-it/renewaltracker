@@ -20,28 +20,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
+      console.log("Login attempt for email:", email);
 
       if (!email || !password) {
+        console.log("Missing email or password");
         return res.status(400).json({ error: "Email and password are required" });
       }
 
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log("User not found for email:", email);
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
+      console.log("User found:", user.email, "Status:", user.status);
+
       if (user.status !== 'active') {
+        console.log("User account disabled");
         return res.status(403).json({ error: "Your account has been disabled" });
       }
 
       const isValidPassword = await comparePassword(password, user.password);
+      console.log("Password valid?", isValidPassword);
+      
       if (!isValidPassword) {
+        console.log("Invalid password for user:", email);
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
       const token = generateToken(user);
       const { password: _, ...userWithoutPassword } = user;
 
+      console.log("Login successful for user:", email);
       res.json({ token, user: userWithoutPassword });
     } catch (error: any) {
       console.error("Login error:", error);
