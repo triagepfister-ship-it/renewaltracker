@@ -95,6 +95,12 @@ Preferred communication style: Simple, everyday language.
 - Account status checks (active/disabled)
 - Environment-based secret key configuration
 
+**Test Users**
+The following test users are created automatically via the seed script:
+- **Admin**: admin@example.com / admin123 (Admin role)
+- **Salesperson**: sales@example.com / sales123 (Salesperson role)
+- **Stephen**: stephen@viewpoint.com / viewpoint (Admin role, hardcoded user)
+
 ## External Dependencies
 
 ### Cloud Services
