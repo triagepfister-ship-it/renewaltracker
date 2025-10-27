@@ -63,7 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management Routes (Admin only)
   // ============================================
 
-  app.get("/api/users", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/users", async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       const usersWithoutPasswords = users.map(({ password, ...user }) => user);
@@ -74,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/users", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  app.post("/api/users", async (req, res) => {
     try {
       const validatedData = insertUserSchema.parse(req.body);
       
@@ -97,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/users/:id", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  app.put("/api/users/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const updateData: any = { ...req.body };
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/users/:id/status", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  app.patch("/api/users/:id/status", async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
@@ -150,13 +150,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/users/:id", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  app.delete("/api/users/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      
-      if (id === req.user?.id) {
-        return res.status(400).json({ error: "Cannot delete your own account" });
-      }
 
       await storage.deleteUser(id);
       res.status(204).send();
@@ -170,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Customer Routes
   // ============================================
 
-  app.get("/api/customers", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/customers", async (req, res) => {
     try {
       const customers = await storage.getAllCustomers();
       res.json(customers);
@@ -180,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/customers", authenticateToken, async (req: AuthRequest, res) => {
+  app.post("/api/customers", async (req, res) => {
     try {
       const validatedData = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(validatedData);
@@ -191,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/customers/:id", authenticateToken, async (req: AuthRequest, res) => {
+  app.put("/api/customers/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertCustomerSchema.parse(req.body);
@@ -208,7 +204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/customers/:id", authenticateToken, async (req: AuthRequest, res) => {
+  app.delete("/api/customers/:id", async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteCustomer(id);
@@ -223,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Renewal Routes
   // ============================================
 
-  app.get("/api/renewals", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/renewals", async (req, res) => {
     try {
       const renewals = await storage.getAllRenewals();
       res.json(renewals);
@@ -233,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/renewals", authenticateToken, async (req: AuthRequest, res) => {
+  app.post("/api/renewals", async (req, res) => {
     try {
       const validatedData = insertRenewalSchema.parse(req.body);
       const renewal = await storage.createRenewal(validatedData);
@@ -248,7 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/renewals/:id", authenticateToken, async (req: AuthRequest, res) => {
+  app.put("/api/renewals/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertRenewalSchema.parse(req.body);
@@ -269,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/renewals/:id", authenticateToken, async (req: AuthRequest, res) => {
+  app.delete("/api/renewals/:id", async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteRenewal(id);
@@ -284,7 +280,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Attachment Routes
   // ============================================
 
-  app.get("/api/renewals/:renewalId/attachments", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/renewals/:renewalId/attachments", async (req, res) => {
     try {
       const { renewalId } = req.params;
       const attachments = await storage.getAttachmentsByRenewal(renewalId);
@@ -295,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/attachments", authenticateToken, async (req: AuthRequest, res) => {
+  app.post("/api/attachments", async (req, res) => {
     try {
       const validatedData = insertAttachmentSchema.parse(req.body);
       
@@ -304,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
         validatedData.filePath,
         {
-          owner: req.user!.id,
+          owner: "system",
           visibility: "private",
         }
       );
@@ -321,7 +317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/attachments/:id/download", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/attachments/:id/download", async (req, res) => {
     try {
       const { id } = req.params;
       const attachment = await storage.getAttachment(id);
@@ -336,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const canAccess = await objectStorageService.canAccessObjectEntity({
         objectFile,
-        userId: req.user?.id,
+        userId: undefined,
         requestedPermission: ObjectPermission.READ,
       });
       
@@ -356,7 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/attachments/:id", authenticateToken, async (req: AuthRequest, res) => {
+  app.delete("/api/attachments/:id", async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteAttachment(id);
@@ -371,7 +367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Notification Routes
   // ============================================
 
-  app.get("/api/notifications", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/notifications", async (req, res) => {
     try {
       const notifications = await storage.getAllNotifications();
       res.json(notifications);
@@ -385,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Notification Preferences Routes
   // ============================================
 
-  app.get("/api/notification-preferences/:userId", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/api/notification-preferences/:userId", async (req, res) => {
     try {
       const { userId } = req.params;
       let preferences = await storage.getNotificationPreference(userId);
@@ -407,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/notification-preferences", authenticateToken, async (req: AuthRequest, res) => {
+  app.put("/api/notification-preferences", async (req, res) => {
     try {
       const { userId, enable2Months, enable1Month, enable1Week } = req.body;
       
@@ -429,13 +425,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Object Storage Routes
   // ============================================
 
-  app.get("/objects/:objectPath(*)", authenticateToken, async (req: AuthRequest, res) => {
+  app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
       const canAccess = await objectStorageService.canAccessObjectEntity({
         objectFile,
-        userId: req.user?.id,
+        userId: undefined,
         requestedPermission: ObjectPermission.READ,
       });
       
@@ -453,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", authenticateToken, async (req: AuthRequest, res) => {
+  app.post("/api/objects/upload", async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
