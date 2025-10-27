@@ -188,8 +188,8 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             <FormItem>
               <FormLabel>Assigned Salesperson</FormLabel>
               <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
+                onValueChange={(value) => field.onChange(value === "unassigned" ? undefined : value)}
+                defaultValue={field.value || "unassigned"}
               >
                 <FormControl>
                   <SelectTrigger data-testid="select-salesperson">

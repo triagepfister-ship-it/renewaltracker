@@ -163,8 +163,8 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
 }).extend({
   customerId: z.string().min(1, "Customer is required"),
   serviceType: z.string().min(1, "Service type is required"),
-  lastServiceDate: z.date(),
-  nextDueDate: z.date(),
+  lastServiceDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
+  nextDueDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
   intervalType: z.enum(['annual', 'bi-annual', 'custom']),
   customIntervalMonths: z.number().int().positive().optional(),
   status: z.enum(['pending', 'contacted', 'completed', 'renewed', 'overdue']).default('pending'),

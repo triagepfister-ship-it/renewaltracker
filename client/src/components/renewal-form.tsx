@@ -20,6 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertRenewalSchema, type RenewalWithRelations, type CustomerWithRelations, type User } from "@shared/schema";
@@ -27,8 +34,10 @@ import type { z } from "zod";
 import { addMonths, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CustomerForm } from "./customer-form";
+import { useState } from "react";
 
 type RenewalFormData = z.infer<typeof insertRenewalSchema>;
 
@@ -39,6 +48,7 @@ interface RenewalFormProps {
 
 export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
   const { toast } = useToast();
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
 
   const { data: customers } = useQuery<CustomerWithRelations[]>({
     queryKey: ['/api/customers'],
@@ -124,46 +134,74 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
   });
 
   const onSubmit = (data: RenewalFormData) => {
+    const payload = {
+      ...data,
+      lastServiceDate: data.lastServiceDate instanceof Date ? data.lastServiceDate.toISOString() : data.lastServiceDate,
+      nextDueDate: data.nextDueDate instanceof Date ? data.nextDueDate.toISOString() : data.nextDueDate,
+    };
+    
     if (renewal) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(payload as any);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(payload as any);
     }
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
+  const handleCustomerCreated = async () => {
+    setIsCustomerDialogOpen(false);
+    await queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
+    const updatedCustomers = queryClient.getQueryData<CustomerWithRelations[]>(['/api/customers']);
+    if (updatedCustomers && updatedCustomers.length > 0) {
+      const newestCustomer = updatedCustomers[updatedCustomers.length - 1];
+      form.setValue("customerId", newestCustomer.id);
+    }
+  };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="customerId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Customer *</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger data-testid="select-customer">
-                      <SelectValue placeholder="Select a customer" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {customers?.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
-                        {customer.companyName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="customerId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Customer *</FormLabel>
+                  <div className="flex gap-2">
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger data-testid="select-customer">
+                          <SelectValue placeholder="Select a customer" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {customers?.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.companyName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setIsCustomerDialogOpen(true)}
+                      data-testid="button-add-customer"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           <FormField
             control={form.control}
@@ -348,8 +386,8 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
             <FormItem>
               <FormLabel>Assigned Salesperson</FormLabel>
               <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
+                onValueChange={(value) => field.onChange(value === "unassigned" ? undefined : value)}
+                defaultValue={field.value || "unassigned"}
               >
                 <FormControl>
                   <SelectTrigger data-testid="select-renewal-salesperson">
@@ -400,5 +438,18 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
         </div>
       </form>
     </Form>
+
+    <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create New Customer</DialogTitle>
+          <DialogDescription>
+            Add a new customer to the system and it will be automatically selected.
+          </DialogDescription>
+        </DialogHeader>
+        <CustomerForm onSuccess={handleCustomerCreated} />
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
