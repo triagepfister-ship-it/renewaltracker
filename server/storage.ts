@@ -42,6 +42,7 @@ export interface IStorage {
   // Renewals
   getAllRenewals(): Promise<Renewal[]>;
   getRenewal(id: string): Promise<Renewal | undefined>;
+  getRenewalsByCustomer(customerId: string): Promise<Renewal[]>;
   createRenewal(renewal: InsertRenewal): Promise<Renewal>;
   updateRenewal(id: string, renewal: Partial<InsertRenewal>): Promise<Renewal | undefined>;
   deleteRenewal(id: string): Promise<void>;
@@ -136,6 +137,16 @@ export class DatabaseStorage implements IStorage {
   async getRenewal(id: string): Promise<Renewal | undefined> {
     const [renewal] = await db.select().from(renewals).where(eq(renewals.id, id));
     return renewal || undefined;
+  }
+
+  async getRenewalsByCustomer(customerId: string): Promise<any[]> {
+    return db.query.renewals.findMany({
+      where: eq(renewals.customerId, customerId),
+      orderBy: desc(renewals.nextDueDate),
+      with: {
+        assignedSalesperson: true,
+      },
+    });
   }
 
   async createRenewal(insertRenewal: InsertRenewal): Promise<Renewal> {

@@ -230,6 +230,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/customers/:customerId/renewals", async (req, res) => {
+    try {
+      const { customerId } = req.params;
+      const renewals = await storage.getRenewalsByCustomer(customerId);
+      res.json(renewals);
+    } catch (error: any) {
+      console.error("Get customer renewals error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.post("/api/renewals", async (req, res) => {
     try {
       const validatedData = insertRenewalSchema.parse(req.body);

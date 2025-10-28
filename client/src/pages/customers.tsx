@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Edit, Trash2, User } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus, Search, Edit, Trash2, User, ChevronDown, ChevronRight, Calendar, Clock, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CustomerForm } from "@/components/customer-form";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +28,204 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { format } from "date-fns";
+
+interface CustomerRowProps {
+  customer: CustomerWithRelations;
+  onEdit: (customer: CustomerWithRelations) => void;
+  onDelete: (id: string) => void;
+}
+
+function CustomerRow({ customer, onEdit, onDelete }: CustomerRowProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { data: renewals, isLoading: renewalsLoading } = useQuery<any[]>({
+    queryKey: ['/api/customers', customer.id, 'renewals'],
+    queryFn: async () => {
+      const response = await fetch(`/api/customers/${customer.id}/renewals`);
+      if (!response.ok) throw new Error('Failed to fetch renewals');
+      return response.json();
+    },
+    enabled: isOpen,
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      case 'overdue':
+        return 'bg-red-500/10 text-red-700 dark:text-red-400';
+      case 'pending':
+        return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+      default:
+        return 'bg-gray-500/10 text-gray-700 dark:text-gray-400';
+    }
+  };
+
+  const getIntervalLabel = (intervalType: string, customMonths?: number) => {
+    if (intervalType === 'custom' && customMonths) {
+      return `Every ${customMonths} months`;
+    }
+    return intervalType === 'annual' ? 'Annual' : 'Bi-annual';
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="border rounded-lg mb-3" data-testid={`customer-row-${customer.id}`}>
+        <div className="flex items-center gap-4 p-4 hover-elevate">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              data-testid={`button-toggle-renewals-${customer.id}`}
+            >
+              {isOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+            <div>
+              <div className="font-medium" data-testid={`text-company-${customer.id}`}>
+                {customer.companyName}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {customer.contactName || '—'}
+              </div>
+            </div>
+
+            <div className="text-sm">
+              <div className="text-muted-foreground">{customer.email || '—'}</div>
+              <div className="text-muted-foreground">{customer.phone || '—'}</div>
+            </div>
+
+            <div className="text-sm">
+              {customer.address && (
+                <div className="text-muted-foreground">{customer.address}</div>
+              )}
+            </div>
+
+            <div>
+              {customer.assignedSalesperson ? (
+                <Badge variant="secondary">
+                  {customer.assignedSalesperson.name}
+                </Badge>
+              ) : (
+                <span className="text-muted-foreground text-sm">Unassigned</span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit(customer)}
+                data-testid={`button-edit-customer-${customer.id}`}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(customer.id)}
+                data-testid={`button-delete-customer-${customer.id}`}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <CollapsibleContent>
+          <div className="px-4 pb-4 pt-2 border-t bg-muted/30">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <h4 className="text-sm font-medium">Renewal History</h4>
+            </div>
+
+            {renewalsLoading ? (
+              <div className="space-y-2">
+                {[1, 2].map((i) => (
+                  <Skeleton key={i} className="h-20 w-full" />
+                ))}
+              </div>
+            ) : !renewals || renewals.length === 0 ? (
+              <div className="text-center py-6 text-sm text-muted-foreground">
+                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                No renewals found for this customer
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {renewals.map((renewal) => (
+                  <div
+                    key={renewal.id}
+                    className="bg-background border rounded-md p-3"
+                    data-testid={`renewal-item-${renewal.id}`}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1">Service Type</div>
+                        <div className="text-sm font-medium">{renewal.serviceType}</div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1">Last Service</div>
+                        <div className="text-sm font-mono">
+                          {format(new Date(renewal.lastServiceDate), 'MMM dd, yyyy')}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1">Next Due</div>
+                        <div className="text-sm font-mono font-medium">
+                          {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {getIntervalLabel(renewal.intervalType, renewal.customIntervalMonths)}
+                        </Badge>
+                        <Badge className={`text-xs ${getStatusColor(renewal.status)}`}>
+                          {renewal.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {renewal.notes && (
+                      <div className="mt-2 pt-2 border-t">
+                        <div className="text-xs text-muted-foreground mb-1">Notes</div>
+                        <div className="text-sm text-muted-foreground">{renewal.notes}</div>
+                      </div>
+                    )}
+
+                    {renewal.assignedSalesperson && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          Assigned to {renewal.assignedSalesperson.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+}
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,7 +269,7 @@ export default function CustomersPage() {
         <div>
           <h1 className="text-3xl font-semibold mb-2" data-testid="text-page-title">Customers</h1>
           <p className="text-muted-foreground">
-            Manage customer information and assignments
+            Manage customer information and view renewal history
           </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -137,58 +327,15 @@ export default function CustomersPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Company Name</TableHead>
-                    <TableHead>Contact Person</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Salesperson</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCustomers.map((customer) => (
-                    <TableRow key={customer.id} data-testid={`row-customer-${customer.id}`}>
-                      <TableCell className="font-medium">{customer.companyName}</TableCell>
-                      <TableCell>{customer.contactName}</TableCell>
-                      <TableCell className="text-muted-foreground">{customer.email || '—'}</TableCell>
-                      <TableCell className="text-muted-foreground">{customer.phone || '—'}</TableCell>
-                      <TableCell>
-                        {customer.assignedSalesperson ? (
-                          <Badge variant="secondary">
-                            {customer.assignedSalesperson.name}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">Unassigned</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingCustomer(customer)}
-                            data-testid={`button-edit-customer-${customer.id}`}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeletingCustomerId(customer.id)}
-                            data-testid={`button-delete-customer-${customer.id}`}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="space-y-0">
+              {filteredCustomers.map((customer) => (
+                <CustomerRow
+                  key={customer.id}
+                  customer={customer}
+                  onEdit={setEditingCustomer}
+                  onDelete={setDeletingCustomerId}
+                />
+              ))}
             </div>
           )}
         </CardContent>
