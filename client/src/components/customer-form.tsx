@@ -49,6 +49,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       phone: customer?.phone || "",
       address: customer?.address || "",
       assignedSalespersonId: customer?.assignedSalespersonId || undefined,
+      salesforceOpportunityUrl: customer?.salesforceOpportunityUrl || "",
     },
   });
 
@@ -189,7 +190,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
               <FormLabel>Assigned Salesperson</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value === "unassigned" ? undefined : value)}
-                defaultValue={field.value || "unassigned"}
+                value={field.value || "unassigned"}
               >
                 <FormControl>
                   <SelectTrigger data-testid="select-salesperson">
@@ -205,6 +206,25 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
                   ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="salesforceOpportunityUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salesforce Opportunity URL</FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="https://..."
+                  {...field}
+                  data-testid="input-customer-salesforce-url"
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
