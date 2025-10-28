@@ -40,6 +40,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RefreshCw } from "lucide-react";
 
 const salespersonFormSchema = z.object({
   name: z.string().min(1, "Salesperson name is required"),
@@ -66,6 +74,9 @@ export default function SettingsPage() {
   const [enable1Week, setEnable1Week] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deletingSalespersonId, setDeletingSalespersonId] = useState<string | null>(null);
+  const [fromSalespersonId, setFromSalespersonId] = useState<string>("");
+  const [toSalespersonId, setToSalespersonId] = useState<string>("");
+  const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
 
   useEffect(() => {
     if (preferences) {
@@ -158,6 +169,51 @@ export default function SettingsPage() {
 
   const handleCreateSalesperson = (data: SalespersonFormData) => {
     createSalespersonMutation.mutate(data);
+  };
+
+  const bulkReassignMutation = useMutation({
+    mutationFn: (data: { fromSalespersonId: string; toSalespersonId: string }) =>
+      apiRequest("POST", "/api/users/bulk-reassign", data),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/renewals'] });
+      toast({
+        title: "Bulk reassignment completed",
+        description: `Successfully reassigned ${data.customersUpdated} customers and ${data.renewalsUpdated} renewals.`,
+      });
+      setIsReassignDialogOpen(false);
+      setFromSalespersonId("");
+      setToSalespersonId("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reassign salesperson",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleBulkReassign = () => {
+    if (!fromSalespersonId || !toSalespersonId) {
+      toast({
+        title: "Error",
+        description: "Please select both salespersons",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (fromSalespersonId === toSalespersonId) {
+      toast({
+        title: "Error",
+        description: "Cannot reassign to the same salesperson",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    bulkReassignMutation.mutate({ fromSalespersonId, toSalespersonId });
   };
 
   const activeSalespeople = salespeople?.filter(s => s.role === 'salesperson' && s.status === 'active') || [];
@@ -368,6 +424,99 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <RefreshCw className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Bulk Reassign Salesperson</CardTitle>
+              <CardDescription className="mt-1">
+                Reassign all customers and renewals from one salesperson to another
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">From Salesperson</label>
+                <Select value={fromSalespersonId} onValueChange={setFromSalespersonId}>
+                  <SelectTrigger data-testid="select-from-salesperson">
+                    <SelectValue placeholder="Select salesperson" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeSalespeople.map((salesperson) => (
+                      <SelectItem key={salesperson.id} value={salesperson.id}>
+                        {salesperson.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">To Salesperson</label>
+                <Select value={toSalespersonId} onValueChange={setToSalespersonId}>
+                  <SelectTrigger data-testid="select-to-salesperson">
+                    <SelectValue placeholder="Select salesperson" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeSalespeople.map((salesperson) => (
+                      <SelectItem key={salesperson.id} value={salesperson.id}>
+                        {salesperson.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <Dialog open={isReassignDialogOpen} onOpenChange={setIsReassignDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    disabled={!fromSalespersonId || !toSalespersonId || fromSalespersonId === toSalespersonId}
+                    data-testid="button-bulk-reassign"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Reassign All
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Bulk Reassignment</DialogTitle>
+                    <DialogDescription>
+                      This will reassign all customers and renewals from{" "}
+                      <strong>{activeSalespeople.find(s => s.id === fromSalespersonId)?.name}</strong> to{" "}
+                      <strong>{activeSalespeople.find(s => s.id === toSalespersonId)?.name}</strong>.
+                      This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsReassignDialogOpen(false)}
+                      data-testid="button-cancel-reassign"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleBulkReassign}
+                      disabled={bulkReassignMutation.isPending}
+                      data-testid="button-confirm-reassign"
+                    >
+                      {bulkReassignMutation.isPending ? "Reassigning..." : "Confirm Reassignment"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

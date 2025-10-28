@@ -31,6 +31,7 @@ export interface IStorage {
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: string): Promise<void>;
   updateUserStatus(id: string, status: 'active' | 'disabled'): Promise<User | undefined>;
+  bulkReassignSalesperson(fromSalespersonId: string, toSalespersonId: string): Promise<{ customersUpdated: number; renewalsUpdated: number }>;
 
   // Customers
   getAllCustomers(): Promise<Customer[]>;
@@ -218,6 +219,25 @@ export class DatabaseStorage implements IStorage {
       const [pref] = await db.insert(notificationPreferences).values(insertPref).returning();
       return pref;
     }
+  }
+
+  async bulkReassignSalesperson(fromSalespersonId: string, toSalespersonId: string): Promise<{ customersUpdated: number; renewalsUpdated: number }> {
+    // Update all customers assigned to fromSalespersonId
+    const updatedCustomers = await db.update(customers)
+      .set({ assignedSalespersonId: toSalespersonId })
+      .where(eq(customers.assignedSalespersonId, fromSalespersonId))
+      .returning();
+
+    // Update all renewals assigned to fromSalespersonId
+    const updatedRenewals = await db.update(renewals)
+      .set({ assignedSalespersonId: toSalespersonId, updatedAt: new Date() })
+      .where(eq(renewals.assignedSalespersonId, fromSalespersonId))
+      .returning();
+
+    return {
+      customersUpdated: updatedCustomers.length,
+      renewalsUpdated: updatedRenewals.length,
+    };
   }
 }
 

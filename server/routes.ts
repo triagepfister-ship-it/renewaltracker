@@ -163,6 +163,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/users/bulk-reassign", async (req, res) => {
+    try {
+      const { fromSalespersonId, toSalespersonId } = req.body;
+
+      if (!fromSalespersonId || !toSalespersonId) {
+        return res.status(400).json({ error: "Both fromSalespersonId and toSalespersonId are required" });
+      }
+
+      if (fromSalespersonId === toSalespersonId) {
+        return res.status(400).json({ error: "Cannot reassign to the same salesperson" });
+      }
+
+      // Verify both users exist and are active salespeople
+      const fromUser = await storage.getUser(fromSalespersonId);
+      const toUser = await storage.getUser(toSalespersonId);
+
+      if (!fromUser || !toUser) {
+        return res.status(404).json({ error: "One or both salespersons not found" });
+      }
+
+      if (fromUser.role !== 'salesperson' || toUser.role !== 'salesperson') {
+        return res.status(400).json({ error: "Both users must be salespersons" });
+      }
+
+      if (fromUser.status !== 'active' || toUser.status !== 'active') {
+        return res.status(400).json({ error: "Both salespersons must be active" });
+      }
+
+      // Reassign customers and renewals
+      const result = await storage.bulkReassignSalesperson(fromSalespersonId, toSalespersonId);
+
+      res.json({
+        message: "Bulk reassignment completed successfully",
+        customersUpdated: result.customersUpdated,
+        renewalsUpdated: result.renewalsUpdated,
+      });
+    } catch (error: any) {
+      console.error("Bulk reassign error:", error);
+      res.status(500).json({ error: error.message || "Failed to reassign salesperson" });
+    }
+  });
+
   // ============================================
   // Customer Routes
   // ============================================
