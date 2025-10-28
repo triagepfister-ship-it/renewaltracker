@@ -169,6 +169,7 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
   customIntervalMonths: z.number().int().positive().optional(),
   status: z.enum(['pending', 'contacted', 'completed', 'renewed', 'overdue']).default('pending'),
   notes: z.string().optional(),
+  assignedSalespersonId: z.string().optional(),
 });
 
 export const insertAttachmentSchema = createInsertSchema(attachments).omit({
