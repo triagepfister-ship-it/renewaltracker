@@ -6,7 +6,29 @@ This is a professional renewal tracking system designed for managing infrared th
 
 ## Recent Changes (October 28, 2025)
 
-### Bulk Upload Feature
+### Extended Renewal Tracking Fields and Intervals
+- Added Site Code field to renewals (stored as 5-digit number, displayed with "S-" prefix format)
+- Added Reference ID field to renewals for tracking internal reference numbers
+- Added Salesforce Opportunity URL fields to both customers and renewals for CRM integration
+- Extended renewal intervals to support 2-year, 3-year, and 5-year options in addition to annual, bi-annual, and custom
+- Salesforce URLs displayed as embedded clickable links in forms and detail views
+
+### Salesperson Filtering
+- Added salesperson filter dropdown on Renewals page to filter by assigned salesperson
+- Added salesperson filter dropdown on Customers page to filter by assigned salesperson
+- Filters dynamically load active salespeople and support "All Salespeople" option
+- Empty states updated to reflect active filters
+
+### Bulk Salesperson Reassignment
+- Added bulk reassignment functionality on Settings page
+- Allows administrators to reassign all customers and renewals from one salesperson to another
+- Backend validation ensures both users are active salespeople (not admins or disabled accounts)
+- API endpoint at POST `/api/users/bulk-reassign` with fromSalespersonId and toSalespersonId
+- Confirmation dialog shows salesperson names and provides clear feedback
+- Success toast displays count of customers and renewals updated
+- Storage layer updates both tables atomically and returns counts
+
+### Bulk Upload Feature (Previous)
 - Added Excel-based bulk import functionality for renewals
 - Template download endpoint at GET `/api/renewals/bulk-upload/template`
 - Bulk upload processing endpoint at POST `/api/renewals/bulk-upload`
