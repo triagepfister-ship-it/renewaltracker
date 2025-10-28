@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const upcomingRenewals = renewals?.filter(r =>
     isAfter(new Date(r.nextDueDate), now) &&
     isBefore(new Date(r.nextDueDate), addMonths(now, 2)) &&
-    r.status === 'pending'
+    (r.status === 'pending' || r.status === 'contacted')
   ) || [];
 
   const overdueRenewals = renewals?.filter(r =>
