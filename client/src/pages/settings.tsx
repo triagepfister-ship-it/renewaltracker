@@ -110,11 +110,11 @@ export default function SettingsPage() {
         role: "salesperson",
         status: "active",
       }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       toast({
-        title: "Salesperson added",
-        description: "The salesperson has been successfully added.",
+        title: "Salesperson added successfully",
+        description: `${variables.name} has been added with temporary password: changeme123. Please ask them to change their password immediately after first login.`,
       });
       setIsCreateDialogOpen(false);
       form.reset();
