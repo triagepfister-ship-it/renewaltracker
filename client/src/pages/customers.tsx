@@ -69,7 +69,7 @@ export default function CustomersPage() {
 
   const filteredCustomers = customers?.filter((customer) =>
     customer.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    customer.contactName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.email?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 

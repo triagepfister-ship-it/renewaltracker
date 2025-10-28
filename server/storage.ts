@@ -123,8 +123,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Renewals
-  async getAllRenewals(): Promise<Renewal[]> {
-    return db.select().from(renewals).orderBy(desc(renewals.nextDueDate));
+  async getAllRenewals(): Promise<any[]> {
+    return db.query.renewals.findMany({
+      orderBy: desc(renewals.nextDueDate),
+      with: {
+        customer: true,
+        assignedSalesperson: true,
+      },
+    });
   }
 
   async getRenewal(id: string): Promise<Renewal | undefined> {
