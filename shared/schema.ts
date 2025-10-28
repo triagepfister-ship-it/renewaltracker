@@ -30,7 +30,7 @@ export const customers = pgTable("customers", {
 export const renewals = pgTable("renewals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   customerId: varchar("customer_id").notNull().references(() => customers.id, { onDelete: 'cascade' }),
-  serviceType: text("service_type").notNull().default('Infrared Thermography Analysis'),
+  serviceType: text("service_type").notNull().$type<'Infrared Thermography Analysis' | 'Arc Flash Hazard Assessment' | 'VUMO' | 'Training' | 'Switchgear Maintenance (EPM)'>().default('Infrared Thermography Analysis'),
   lastServiceDate: timestamp("last_service_date").notNull(),
   nextDueDate: timestamp("next_due_date").notNull(),
   intervalType: text("interval_type").notNull().$type<'annual' | 'bi-annual' | 'custom'>().default('annual'),
@@ -162,7 +162,7 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
   updatedAt: true,
 }).extend({
   customerId: z.string().min(1, "Customer is required"),
-  serviceType: z.string().min(1, "Service type is required"),
+  serviceType: z.enum(['Infrared Thermography Analysis', 'Arc Flash Hazard Assessment', 'VUMO', 'Training', 'Switchgear Maintenance (EPM)']),
   lastServiceDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
   nextDueDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
   intervalType: z.enum(['annual', 'bi-annual', 'custom']),

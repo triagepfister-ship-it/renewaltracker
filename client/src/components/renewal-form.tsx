@@ -209,9 +209,23 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Service Type *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Infrared Thermography Analysis" {...field} data-testid="input-service-type" />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger data-testid="select-service-type">
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Infrared Thermography Analysis">Infrared Thermography Analysis</SelectItem>
+                    <SelectItem value="Arc Flash Hazard Assessment">Arc Flash Hazard Assessment</SelectItem>
+                    <SelectItem value="VUMO">VUMO</SelectItem>
+                    <SelectItem value="Training">Training</SelectItem>
+                    <SelectItem value="Switchgear Maintenance (EPM)">Switchgear Maintenance (EPM)</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
