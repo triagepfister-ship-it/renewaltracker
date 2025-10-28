@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CustomerForm } from "@/components/customer-form";
+import { RenewalForm } from "@/components/renewal-form";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -46,9 +47,10 @@ interface CustomerRowProps {
   customer: CustomerWithRelations;
   onEdit: (customer: CustomerWithRelations) => void;
   onDelete: (id: string) => void;
+  onAddRenewal: (customer: CustomerWithRelations) => void;
 }
 
-function CustomerRow({ customer, onEdit, onDelete }: CustomerRowProps) {
+function CustomerRow({ customer, onEdit, onDelete, onAddRenewal }: CustomerRowProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: renewals, isLoading: renewalsLoading } = useQuery<any[]>({
@@ -132,6 +134,15 @@ function CustomerRow({ customer, onEdit, onDelete }: CustomerRowProps) {
             </div>
 
             <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onAddRenewal(customer)}
+                data-testid={`button-add-renewal-${customer.id}`}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Renewal
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -240,6 +251,7 @@ export default function CustomersPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithRelations | null>(null);
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+  const [renewalCustomer, setRenewalCustomer] = useState<CustomerWithRelations | null>(null);
   const { toast } = useToast();
 
   const { data: customers, isLoading } = useQuery<CustomerWithRelations[]>({
@@ -364,6 +376,7 @@ export default function CustomersPage() {
                   customer={customer}
                   onEdit={setEditingCustomer}
                   onDelete={setDeletingCustomerId}
+                  onAddRenewal={setRenewalCustomer}
                 />
               ))}
             </div>
@@ -407,6 +420,27 @@ export default function CustomersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {renewalCustomer && (
+        <Dialog open={!!renewalCustomer} onOpenChange={() => setRenewalCustomer(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Renewal for {renewalCustomer.companyName}</DialogTitle>
+              <DialogDescription>
+                Create a new renewal record with customer information pre-filled
+              </DialogDescription>
+            </DialogHeader>
+            <RenewalForm
+              initialCustomerId={renewalCustomer.id}
+              initialSalespersonId={renewalCustomer.assignedSalespersonId || undefined}
+              onSuccess={() => {
+                setRenewalCustomer(null);
+                queryClient.invalidateQueries({ queryKey: ['/api/customers', renewalCustomer.id, 'renewals'] });
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

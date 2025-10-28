@@ -43,10 +43,12 @@ type RenewalFormData = z.infer<typeof insertRenewalSchema>;
 
 interface RenewalFormProps {
   renewal?: RenewalWithRelations;
+  initialCustomerId?: string;
+  initialSalespersonId?: string;
   onSuccess?: () => void;
 }
 
-export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
+export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, onSuccess }: RenewalFormProps) {
   const { toast } = useToast();
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
 
@@ -63,7 +65,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
   const form = useForm<RenewalFormData>({
     resolver: zodResolver(insertRenewalSchema),
     defaultValues: {
-      customerId: renewal?.customerId || "",
+      customerId: renewal?.customerId || initialCustomerId || "",
       serviceType: renewal?.serviceType || "Infrared Thermography Analysis",
       siteCode: renewal?.siteCode || "",
       referenceId: renewal?.referenceId || undefined,
@@ -73,7 +75,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
       customIntervalMonths: renewal?.customIntervalMonths || undefined,
       status: renewal?.status || "pending",
       notes: renewal?.notes || "",
-      assignedSalespersonId: renewal?.assignedSalespersonId || undefined,
+      assignedSalespersonId: renewal?.assignedSalespersonId || initialSalespersonId || undefined,
       salesforceOpportunityUrl: renewal?.salesforceOpportunityUrl || "",
     },
   });
