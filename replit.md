@@ -6,6 +6,14 @@ This is a professional renewal tracking system designed for managing infrared th
 
 ## Recent Changes (October 28, 2025)
 
+### ABB Industrial Design System
+- Redesigned application with ABB LTD branding and industrial aesthetic
+- Implemented ABB's distinctive red (#FF000F) and white color scheme
+- Updated design guidelines to reflect Swiss precision and industrial engineering focus
+- Clean, professional interface prioritizing data clarity and enterprise credibility
+- Maintained dark mode support with industrial gray palette and red accents
+- Design philosophy: Grid-based precision, industrial credibility, data supremacy
+
 ### Extended Renewal Tracking Fields and Intervals
 - Added Site Code field to renewals (stored as 5-digit number, displayed with "S-" prefix format)
 - Added Reference ID field to renewals for tracking internal reference numbers
@@ -54,10 +62,12 @@ Preferred communication style: Simple, everyday language.
 - React Hook Form with Zod for form validation
 
 **UI Design System**
+- ABB industrial design aesthetic with red (#FF000F) and white color scheme
 - Shadcn/ui components built on Radix UI primitives
-- Tailwind CSS for styling with custom design tokens
+- Tailwind CSS for styling with ABB-branded design tokens
 - Typography: Inter for UI text, JetBrains Mono for dates and technical data
-- Design philosophy inspired by Linear and modern enterprise productivity tools, prioritizing clarity and data density over visual flourish
+- Design philosophy: Swiss precision, industrial credibility, grid-based layouts
+- Clean, functional interface reflecting ABB's engineering heritage and modern technological leadership
 
 **Component Architecture**
 - Atomic design pattern with reusable UI components in `client/src/components/ui/`

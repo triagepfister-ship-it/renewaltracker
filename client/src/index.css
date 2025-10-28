@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* LIGHT MODE - ABB Industrial Design */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -14,67 +14,80 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
+  /* ABB Pure White background */
   --background: 0 0% 100%;
 
-  --foreground: 222 15% 12%;
+  /* ABB Near Black foreground */
+  --foreground: 0 0% 10%;
 
-  --border: 220 13% 91%;
+  /* Light gray borders */
+  --border: 0 0% 88%;
 
-  --card: 210 5% 98%;
+  /* White cards with subtle elevation */
+  --card: 0 0% 100%;
 
-  --card-foreground: 222 15% 12%;
+  --card-foreground: 0 0% 10%;
 
-  --card-border: 220 10% 93%;
+  --card-border: 0 0% 90%;
 
-  --sidebar: 216 6% 96%;
+  /* White sidebar with subtle gray tint */
+  --sidebar: 0 0% 98%;
 
-  --sidebar-foreground: 222 15% 12%;
+  --sidebar-foreground: 0 0% 10%;
 
-  --sidebar-border: 220 8% 90%;
+  --sidebar-border: 0 0% 88%;
 
-  --sidebar-primary: 217 91% 60%;
+  /* ABB Red primary color */
+  --sidebar-primary: 358 100% 50%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 217 15% 88%;
+  /* Light gray accent for sidebar */
+  --sidebar-accent: 0 0% 96%;
 
-  --sidebar-accent-foreground: 222 15% 12%;
+  --sidebar-accent-foreground: 0 0% 10%;
 
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-ring: 358 100% 50%;
 
-  --popover: 210 8% 95%;
+  /* Popover in white */
+  --popover: 0 0% 100%;
 
-  --popover-foreground: 222 15% 12%;
+  --popover-foreground: 0 0% 10%;
 
-  --popover-border: 220 10% 88%;
+  --popover-border: 0 0% 88%;
 
-  --primary: 217 91% 60%;
+  /* ABB Red as primary */
+  --primary: 358 100% 50%;
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 216 12% 90%;
+  /* Light gray secondary */
+  --secondary: 0 0% 94%;
 
-  --secondary-foreground: 222 15% 12%;
+  --secondary-foreground: 0 0% 10%;
 
-  --muted: 217 10% 92%;
+  /* Subtle muted gray */
+  --muted: 0 0% 96%;
 
-  --muted-foreground: 222 10% 35%;
+  --muted-foreground: 0 0% 40%;
 
-  --accent: 217 18% 90%;
+  /* Subtle accent gray */
+  --accent: 0 0% 95%;
 
-  --accent-foreground: 222 15% 12%;
+  --accent-foreground: 0 0% 10%;
 
-  --destructive: 0 84% 60%;
+  /* Red for destructive/overdue */
+  --destructive: 358 100% 50%;
 
   --destructive-foreground: 0 0% 100%;
 
-  --input: 220 13% 75%;
-  --ring: 217 91% 60%;
-  --chart-1: 217 91% 45%;
-  --chart-2: 142 76% 36%;
-  --chart-3: 262 83% 58%;
-  --chart-4: 32 95% 44%;
-  --chart-5: 340 82% 52%;
+  --input: 0 0% 75%;
+  --ring: 358 100% 50%;
+  --chart-1: 358 100% 50%;
+  --chart-2: 0 0% 30%;
+  --chart-3: 0 0% 50%;
+  --chart-4: 0 0% 65%;
+  --chart-5: 358 80% 60%;
 
   --font-sans: Inter, system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
@@ -132,67 +145,80 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 222 12% 8%;
+  /* Dark industrial gray background */
+  --background: 0 0% 10%;
 
-  --foreground: 210 6% 93%;
+  /* Light gray text */
+  --foreground: 0 0% 93%;
 
-  --border: 220 10% 18%;
+  /* Medium gray borders */
+  --border: 0 0% 20%;
 
-  --card: 220 8% 11%;
+  /* Slightly lighter cards */
+  --card: 0 0% 14%;
 
-  --card-foreground: 210 6% 93%;
+  --card-foreground: 0 0% 93%;
 
-  --card-border: 220 10% 16%;
+  --card-border: 0 0% 22%;
 
-  --sidebar: 218 10% 14%;
+  /* Dark sidebar */
+  --sidebar: 0 0% 12%;
 
-  --sidebar-foreground: 210 6% 93%;
+  --sidebar-foreground: 0 0% 93%;
 
-  --sidebar-border: 220 10% 20%;
+  --sidebar-border: 0 0% 20%;
 
-  --sidebar-primary: 217 91% 60%;
+  /* ABB Red in dark mode */
+  --sidebar-primary: 358 100% 55%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 217 15% 20%;
+  /* Dark accent gray */
+  --sidebar-accent: 0 0% 18%;
 
-  --sidebar-accent-foreground: 210 6% 93%;
+  --sidebar-accent-foreground: 0 0% 93%;
 
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-ring: 358 100% 55%;
 
-  --popover: 220 10% 16%;
+  /* Dark popover */
+  --popover: 0 0% 16%;
 
-  --popover-foreground: 210 6% 93%;
+  --popover-foreground: 0 0% 93%;
 
-  --popover-border: 220 10% 22%;
+  --popover-border: 0 0% 24%;
 
-  --primary: 217 91% 60%;
+  /* ABB Red primary */
+  --primary: 358 100% 55%;
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 217 12% 22%;
+  /* Dark secondary */
+  --secondary: 0 0% 22%;
 
-  --secondary-foreground: 210 6% 93%;
+  --secondary-foreground: 0 0% 93%;
 
-  --muted: 217 10% 18%;
+  /* Dark muted */
+  --muted: 0 0% 18%;
 
-  --muted-foreground: 210 6% 65%;
+  --muted-foreground: 0 0% 65%;
 
-  --accent: 217 18% 20%;
+  /* Dark accent */
+  --accent: 0 0% 20%;
 
-  --accent-foreground: 210 6% 93%;
+  --accent-foreground: 0 0% 93%;
 
-  --destructive: 0 84% 60%;
+  /* Brighter red for dark mode destructive */
+  --destructive: 358 100% 60%;
 
   --destructive-foreground: 0 0% 100%;
 
-  --input: 220 13% 35%;
-  --ring: 217 91% 60%;
-  --chart-1: 217 91% 65%;
-  --chart-2: 142 76% 55%;
-  --chart-3: 262 83% 68%;
-  --chart-4: 32 95% 60%;
-  --chart-5: 340 82% 62%;
+  --input: 0 0% 35%;
+  --ring: 358 100% 55%;
+  --chart-1: 358 100% 60%;
+  --chart-2: 0 0% 50%;
+  --chart-3: 0 0% 60%;
+  --chart-4: 0 0% 70%;
+  --chart-5: 358 80% 65%;
 
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.40);
   --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.50);

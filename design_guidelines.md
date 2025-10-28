@@ -1,231 +1,237 @@
-# Design Guidelines: Infrared Thermography Renewal Tracking System
+# ABB Infrared Thermography Renewal Tracking System - Design Guidelines
 
 ## Design Approach
+Industrial Enterprise Design System combining ABB brand precision with Linear-style productivity patterns. Swiss engineering aesthetic with data-dense interfaces for technical professionals.
 
-**Selected Approach:** Design System-Inspired (Linear + Enterprise Productivity Tools)
+**Core Principles:** Grid-based precision, industrial credibility, data supremacy, strategic brand expression, enterprise reliability.
 
-Drawing inspiration from modern productivity tools like Linear, Notion, and traditional enterprise dashboards, this system prioritizes clarity, efficiency, and data density while maintaining a contemporary aesthetic. The design balances professional credibility with modern usability patterns.
+---
 
-**Core Principles:**
-- Information clarity over visual flourish
-- Efficient data scanning and quick decision-making
-- Consistent, predictable interface patterns
-- Professional credibility for business context
-- Mobile-responsive for field salesperson access
+## Color System
+
+### Palette
+- **ABB Red:** `#FF000F` - Primary accent, critical actions, urgent status
+- **Pure White:** `#FFFFFF` - Primary background, cards, modals
+- **Near Black:** `#1A1A1A` - Primary text, headings
+- **Grays:** `#F5F5F5` (subtle BG), `#E0E0E0` (borders), `#666666` (secondary text), `#CCCCCC` (disabled)
+
+### Application Rules
+- **Sidebar:** White with 3px red vertical bar for active state
+- **Primary buttons:** Red background, white text
+- **Urgent/Overdue:** Red badges
+- **Table headers:** `#F5F5F5` background
+- **Borders:** `#E0E0E0` universally
+- **Success states:** Dark gray (no green - industrial aesthetic)
+- **Hover links:** Red
+- **Disabled:** Light gray borders/text
 
 ---
 
 ## Typography
 
-**Font Family:**
-- Primary: Inter (via Google Fonts CDN)
-- Monospace: JetBrains Mono (for dates, intervals, technical data)
+### Fonts
+- **Primary:** Inter (body, UI)
+- **Technical:** JetBrains Mono (dates, codes, metrics)
+- **Source:** Google Fonts CDN
 
-**Type Scale:**
-- Page Headers: text-3xl, font-semibold (salespeople dashboard, admin panel)
-- Section Headers: text-xl, font-semibold (renewal calendar, customer list)
-- Card/Table Headers: text-base, font-medium
-- Body Text: text-sm, font-normal
-- Labels/Metadata: text-xs, font-medium, uppercase tracking-wide
-- Data/Numbers: text-base, font-mono (dates, intervals)
+### Scale
+```
+Page Headers: text-3xl, font-semibold, tracking-tight
+Section Headers: text-xl, font-semibold  
+Card/Table Headers: text-sm, font-semibold, uppercase, tracking-wider
+Body: text-sm, font-normal
+Labels/Meta: text-xs, font-medium, uppercase, tracking-wide
+Technical Data: text-sm, font-mono
+Large Metrics: text-4xl, font-bold, font-mono (numbers)
+```
 
-**Hierarchy Application:**
-- Dashboard titles use largest scale with generous bottom margin
-- Data table headers use medium weight for scannability
-- Form labels use uppercase small text for clear field identification
-- Status indicators use bold text at small size
+**Rules:** Near-black headers, uppercase for engineering precision, monospace for all numerical data.
 
 ---
 
 ## Layout System
 
-**Spacing Primitives:** Tailwind units of 2, 4, 6, 8, 12, 16
-- Micro spacing (component internals): 2, 4
-- Component spacing: 6, 8
-- Section spacing: 12, 16
-- Page margins: 8, 12
+### Spacing
+Tailwind units: 2, 4, 6, 8, 12, 16, 24
+- Micro (buttons): 2, 4
+- Component internals: 4, 6
+- Component separation: 8, 12
+- Sections: 16, 24
+- Page margins: 8 (mobile), 12 (desktop)
 
-**Grid System:**
-- Main layout: Sidebar (w-64) + Content area (flex-1)
-- Sidebar remains fixed, content scrolls
-- Dashboard cards: grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6
-- Data tables: Full-width with internal column distribution
-- Forms: Single column max-w-2xl for focus, two-column grid for compact data entry
-
-**Container Strategy:**
-- Sidebar: Fixed width 256px (w-64), full height
-- Content wrapper: p-8 for desktop, p-4 for mobile
-- Cards/Panels: p-6 internal padding
-- Modals: max-w-2xl for forms, max-w-4xl for detailed views
+### Grid Architecture
+- **Sidebar:** Fixed `w-64`, white, 1px right border `#E0E0E0`
+- **Content:** `flex-1`, `#F5F5F5` background
+- **Dashboard:** `grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6`
+- **Forms:** `max-w-3xl`, white cards, `p-8`
+- **All cards:** White, 1px gray border, subtle shadow
 
 ---
 
-## Component Library
+## Components
 
-### Navigation & Structure
+### Navigation
 
-**Sidebar Navigation:**
-- Fixed left sidebar with logo at top (h-16 header)
-- Navigation items with icon (Heroicons) + label
-- Active state: subtle indicator bar on left edge
-- Grouped sections: Dashboard, Renewals, Customers, Notifications, Admin (role-based)
-- User profile section at bottom with role badge
+**Sidebar:**
+- ABB logo: `h-16`, `p-6`
+- Nav items: Heroicons outline (20px) + label, `py-3 px-4`
+- Active: 3px red left bar, red icon/text
+- Hover: `#F5F5F5` background
+- Bottom: User profile + role badge
 
 **Top Bar:**
-- Sticky header with breadcrumb navigation
-- Global search input (w-96)
-- Notification bell icon with badge count
-- User avatar dropdown with logout
+- White, sticky, bottom border
+- Breadcrumbs (left), search `w-96` red focus border (center), notifications + avatar (right)
 
 ### Data Display
 
+**Metric Cards:**
+```
+White, 1px border, h-40
+Number: text-4xl, font-mono, font-bold (red for critical)
+Label: text-xs, uppercase, tracking-wide, gray
+Trend: text-sm, percentage
+Hover: Shadow elevation
+```
+
+**Tables:**
+- Header: `#F5F5F5` bg, text-xs uppercase
+- Rows: `py-4`, alternating white/`#FAFAFA`
+- Sticky header on scroll
+- Status badges: Red (overdue), gray (pending/completed)
+- Actions: Icon-only, gray with red hover
+- Pagination: Bottom-right
+
 **Calendar View:**
-- Month/week toggle view
-- Grid layout with renewal cards in date cells
-- Card shows: Customer name, renewal type, salesperson assignment
-- Hover reveals quick actions (view details, mark contacted)
-- Color-coded by urgency proximity (no specific colors, but visual differentiation)
-- Filter controls above calendar: date range picker, salesperson filter, status filter
-
-**Data Tables:**
-- Sticky header row with sortable columns
-- Row height: py-3 for comfortable scanning
-- Columns: Customer name, renewal date, interval type, status, assigned salesperson, actions
-- Alternating row treatment for readability
-- Inline action buttons (edit, view details, upload attachment)
-- Pagination controls at bottom (showing 20 items per page)
-- Empty state illustration with call-to-action
-
-**Dashboard Cards:**
-- Metric cards (h-32): Large number, label, trend indicator
-- Quick stats: Total renewals, upcoming this month, overdue, conversion rate
-- Urgent renewals list: Scrollable list of next 5 critical items
-- Recent activity feed: Timeline of recent customer interactions
+- White grid cells, gray borders
+- Renewal cards: 3px red left bar
+- Content: Customer (bold), type (gray, text-xs uppercase)
+- Filters: Date picker, dropdowns, status chips
 
 ### Forms & Input
 
-**Customer/Renewal Forms:**
-- Clear field labels positioned above inputs
-- Input fields: h-10, rounded-md, border treatment
-- Grouped related fields with subtle section dividers
-- Required field indicators (asterisk)
-- Inline validation messages below inputs
-- Date picker component for renewal dates
-- Dropdown for interval selection (Annual, Bi-Annual, Custom)
-- Multi-select for notification preferences (2 months, 1 month, 1 week)
-- Textarea for notes (min-h-32)
+**Structure:**
+- Labels: text-xs uppercase tracking-wide gray, above inputs
+- Inputs: `h-11`, `rounded-md`, gray border, `focus:red`
+- Required: Red asterisk
+- Field groups: `mb-6`
+- Validation: Red border + error text below
 
-**File Upload Zone:**
-- Drag-and-drop area with dashed border
-- Icon (upload cloud) + descriptive text
-- Uploaded files list below with filename, size, remove action
-- Supports multiple attachments per renewal
+**Components:**
+- Date picker: Calendar icon, monospace display
+- Multi-select: Gray chips, red close icon
+- Textarea: `min-h-32`
+- Checkboxes/Radio: Red when checked
+- File upload: Dashed border zone, "Drop files or click"
 
-**Search & Filters:**
-- Search input with magnifying glass icon prefix
-- Filter dropdowns grouped logically
-- Applied filters shown as removable chips below controls
-- Clear all filters button
+### Buttons
 
-### Interactive Elements
+```css
+Primary: Red bg, white text, px-6 py-2.5, rounded-md, font-medium
+Secondary: White bg, gray border, dark text
+Tertiary: Ghost, red text, no border
+Icon: p-2, rounded-md, gray → red hover
+Loading: Spinner, disabled cursor
+```
 
-**Buttons:**
-- Primary action: px-4 py-2, rounded-md, font-medium
-- Secondary action: border style, same padding
-- Destructive action: visual differentiation (no color specified)
-- Icon-only buttons: p-2, rounded-md (table actions)
-- Button groups for related actions
+### Status Badges
 
-**Status Badges:**
-- Rounded-full, px-3 py-1, text-xs, font-medium
-- States: Pending, Contacted, Completed, Renewed, Overdue
-- Visual differentiation through distinct treatments
+```
+rounded-full, px-3 py-1, text-xs, font-semibold, uppercase
+Overdue: Red bg, white text
+Pending: Light gray bg, dark text  
+Contacted/Completed: Gray bg, white text
+Renewed: Dark gray + checkmark
+```
 
-**Notification Cards:**
-- Compact card design (p-4)
-- Left accent border indicating priority
-- Icon + renewal summary + customer name
-- Time until due date (e.g., "Due in 14 days")
-- Quick action buttons (Mark Contacted, View Details)
+### Notifications
 
-### Admin Components
+**Cards:**
+- White, 4px red left bar
+- Layout: Icon (red) | Content | Actions
+- Content: Customer (bold), summary, time due
+- Actions: "Mark Contacted" (secondary), "View" (tertiary)
 
-**User Management Table:**
-- Columns: Name, email, role, status (active/disabled), last login, actions
-- Inline status toggle for enable/disable
-- Action dropdown for edit/delete
-- Invite user button (prominent placement)
+**Toasts:**
+- Fixed top-right
+- White, left accent bar (red=error, gray=success)
+- Icon + message + close
+- Auto-dismiss: 5s, slide-in from right
 
-**User Form Modal:**
-- Fields: Name, email, role dropdown, initial password (for new users)
-- Password requirements shown below field
-- Role explanation helper text
+### Modals
 
-### Overlays & Modals
-
-**Modal Structure:**
-- Centered overlay with backdrop
-- Header with title + close button
-- Content area with scroll if needed (max-h-96)
-- Footer with action buttons (aligned right)
+**Structure:**
+```
+Backdrop: Semi-transparent dark
+Modal: White, rounded-lg, shadow-2xl, max-w-2xl
+Top: 1px red bar (h-1)
+Header: text-xl semibold + close icon
+Content: p-8, scrollable max-h-[80vh]
+Footer: p-6, border-top, right-aligned buttons
+```
 
 **Confirmation Dialogs:**
-- Compact modal (max-w-md)
-- Warning icon for destructive actions
-- Clear action descriptions
-- Primary + cancel buttons
-
-**Toast Notifications:**
-- Fixed position top-right
-- Auto-dismiss after 5 seconds
-- Icon + message + close button
-- Slide-in animation on appear
+- `max-w-md`, red warning icon
+- Destructive (red) + Cancel buttons
 
 ### Specialized Components
 
 **Renewal Detail Panel:**
-- Sliding side panel from right (w-96 to w-1/2 depending on content)
-- Sections: Customer info, renewal details, attachment list, notification history, activity log
-- Sticky action bar at bottom (Update Status, Edit, Delete)
+- Slide-in right, `w-1/2`, white
+- 3px red left bar
+- Sections: Customer, Details, Attachments, History
+- Sticky bottom: Actions bar with shadow
 
-**Notification Preferences:**
-- Checkbox list for default preferences (salesperson settings)
-- Per-renewal override in renewal form
-- Visual timeline showing when notifications will trigger
+**Admin User Management:**
+- Table format (Name, Email, Role, Status, Last Login, Actions)
+- Status toggle: Red when active
+- Action dropdown: Edit/disable/delete
+- User form modal: Password requirements with red checkmarks
+
+**Empty States:**
+- Minimal gray line-art (industrial/thermography equipment)
+- Center placement with descriptive text
+
+**Avatars:**
+- Circular: 32px (nav), 40px (profile)
+- Fallback: Initials on gray
 
 ---
 
-## Responsive Behavior
+## Responsive Breakpoints
 
-**Desktop (lg+):**
-- Full sidebar visible
-- Multi-column layouts for cards and tables
-- Expansive calendar view
-
-**Tablet (md):**
-- Collapsible sidebar (hamburger menu)
-- Two-column card grids
-- Table scroll horizontal if needed
-
-**Mobile (base):**
-- Hidden sidebar, accessible via menu
-- Single-column layouts
-- Simplified table views (stacked card format)
-- Bottom navigation bar for key actions
+- **Desktop (lg+):** Full sidebar, 4-column grids, expansive calendar
+- **Tablet (md):** Collapsible sidebar, 2-column grids, horizontal scroll tables
+- **Mobile:** Hamburger menu, single-column, stacked cards, bottom nav
 
 ---
 
 ## Animations
 
-Use sparingly and only for functional feedback:
-- Modal fade-in (duration-200)
-- Dropdown slide-down (duration-150)
-- Toast notification slide-in (duration-300)
-- Loading spinners for async operations
-- No decorative animations
+Minimal only:
+- Modal/dropdown: `duration-200` fade
+- Sidebar: `duration-300` slide
+- Toast: `duration-200` slide-in
+- Loading: Continuous rotation
+- **No decorative/scroll animations**
 
 ---
 
-## Images
+## Accessibility
 
-**No hero images required** - this is a productivity tool, not a marketing site. Focus remains on data and functionality throughout.
+- High contrast: Near-black text on white
+- Focus states: Red border on all interactive elements
+- Icon buttons: Proper ARIA labels
+- Keyboard navigation: Full support
+- Form validation: Visible error messages
+- Status communication: Text + color (not color alone)
+
+---
+
+## Image Guidelines
+
+- **ABB logo:** Sidebar header, login, footer
+- **Avatars:** Circular with initials fallback
+- **Empty states:** Functional gray illustrations only
+- **Thermal images:** Grid thumbnails, lightbox expansion
+- **No hero images** - Functional only
