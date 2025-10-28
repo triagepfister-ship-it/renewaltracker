@@ -104,8 +104,8 @@ export function AppSidebar() {
             <ScanLine className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-base font-semibold">Renewal Tracker</h2>
-            <p className="text-xs text-muted-foreground">Infrared Thermography</p>
+            <h2 className="text-base font-semibold">ELSE Renewals Tracker</h2>
+            <p className="text-xs text-muted-foreground">Advisory Services</p>
           </div>
         </div>
       </SidebarHeader>
