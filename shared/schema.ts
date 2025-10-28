@@ -23,6 +23,7 @@ export const customers = pgTable("customers", {
   phone: text("phone"),
   address: text("address"),
   assignedSalespersonId: varchar("assigned_salesperson_id").references(() => users.id),
+  salesforceOpportunityUrl: text("salesforce_opportunity_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -31,13 +32,16 @@ export const renewals = pgTable("renewals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   customerId: varchar("customer_id").notNull().references(() => customers.id, { onDelete: 'cascade' }),
   serviceType: text("service_type").notNull().$type<'Infrared Thermography Analysis' | 'Arc Flash Hazard Assessment' | 'VUMO' | 'Training' | 'Switchgear Maintenance (EPM)'>().default('Infrared Thermography Analysis'),
+  siteCode: text("site_code"),
+  referenceId: integer("reference_id"),
   lastServiceDate: timestamp("last_service_date").notNull(),
   nextDueDate: timestamp("next_due_date").notNull(),
-  intervalType: text("interval_type").notNull().$type<'annual' | 'bi-annual' | 'custom'>().default('annual'),
+  intervalType: text("interval_type").notNull().$type<'annual' | 'bi-annual' | '2-year' | '3-year' | '5-year' | 'custom'>().default('annual'),
   customIntervalMonths: integer("custom_interval_months"),
   status: text("status").notNull().$type<'pending' | 'contacted' | 'completed' | 'renewed' | 'overdue'>().default('pending'),
   notes: text("notes"),
   assignedSalespersonId: varchar("assigned_salesperson_id").references(() => users.id),
+  salesforceOpportunityUrl: text("salesforce_opportunity_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -154,6 +158,7 @@ export const insertCustomerSchema = createInsertSchema(customers).omit({
   email: z.string().email("Invalid email address").optional().or(z.literal('')),
   phone: z.string().optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
+  salesforceOpportunityUrl: z.string().url("Invalid URL").optional().or(z.literal('')),
 });
 
 export const insertRenewalSchema = createInsertSchema(renewals).omit({
@@ -163,13 +168,16 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
 }).extend({
   customerId: z.string().min(1, "Customer is required"),
   serviceType: z.enum(['Infrared Thermography Analysis', 'Arc Flash Hazard Assessment', 'VUMO', 'Training', 'Switchgear Maintenance (EPM)']),
+  siteCode: z.string().regex(/^\d{5}$/, "Site code must be exactly 5 digits").optional().or(z.literal('')),
+  referenceId: z.number().int().positive().optional(),
   lastServiceDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
   nextDueDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
-  intervalType: z.enum(['annual', 'bi-annual', 'custom']),
+  intervalType: z.enum(['annual', 'bi-annual', '2-year', '3-year', '5-year', 'custom']),
   customIntervalMonths: z.number().int().positive().optional(),
   status: z.enum(['pending', 'contacted', 'completed', 'renewed', 'overdue']).default('pending'),
   notes: z.string().optional(),
   assignedSalespersonId: z.string().optional(),
+  salesforceOpportunityUrl: z.string().url("Invalid URL").optional().or(z.literal('')),
 });
 
 export const insertAttachmentSchema = createInsertSchema(attachments).omit({
