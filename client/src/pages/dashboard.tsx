@@ -17,7 +17,7 @@ export default function DashboardPage() {
     queryKey: ['/api/notifications'],
   });
 
-  const { data: customers } = useQuery({
+  const { data: customers } = useQuery<any[]>({
     queryKey: ['/api/customers'],
   });
 
