@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   UserCog,
+  ScanLine,
 } from "lucide-react";
 import {
   Sidebar,
@@ -100,7 +101,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-6 border-b">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-            <FileText className="h-5 w-5 text-primary-foreground" />
+            <ScanLine className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
             <h2 className="text-base font-semibold">Renewal Tracker</h2>
