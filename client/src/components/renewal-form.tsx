@@ -173,7 +173,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
                   <div className="flex gap-2">
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger data-testid="select-customer">
@@ -320,7 +320,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
                     field.onChange(value);
                     handleIntervalChange(value);
                   }}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger data-testid="select-interval-type">
@@ -372,7 +372,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
                 <FormLabel>Status *</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger data-testid="select-status">
@@ -401,7 +401,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
               <FormLabel>Assigned Salesperson</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value === "unassigned" ? undefined : value)}
-                defaultValue={field.value || "unassigned"}
+                value={field.value || "unassigned"}
               >
                 <FormControl>
                   <SelectTrigger data-testid="select-renewal-salesperson">
