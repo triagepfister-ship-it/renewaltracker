@@ -194,6 +194,11 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground font-mono">
                         Due: {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
                       </p>
+                      {renewal.assignedSalesperson && (
+                        <p className="text-sm text-muted-foreground">
+                          Salesperson: {renewal.assignedSalesperson.name}
+                        </p>
+                      )}
                     </div>
                     <Badge variant="destructive">
                       {renewal.status}
