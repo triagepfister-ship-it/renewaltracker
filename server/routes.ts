@@ -296,7 +296,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/renewals/bulk-upload/template", async (req, res) => {
     try {
-      // Create a template Excel file with headers and example row
+      // Create a template Excel file with headers and example rows
+      // Includes examples of all available service types
       const templateData = [
         {
           "Company Name": "Example Corp",
@@ -311,6 +312,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Status": "pending",
           "Notes": "Optional notes here",
           "Assigned Salesperson Email": "sales@example.com"
+        },
+        {
+          "Company Name": "Tech Solutions Inc",
+          "Contact Name": "Jane Smith",
+          "Email": "jane@techsolutions.com",
+          "Phone": "555-5678",
+          "Service Type": "Arc Flash Hazard Assessment",
+          "Last Service Date": "2024-02-20",
+          "Next Due Date": "2025-02-20",
+          "Interval Type": "annual",
+          "Custom Interval Months": "",
+          "Status": "pending",
+          "Notes": "",
+          "Assigned Salesperson Email": ""
+        },
+        {
+          "Company Name": "Industrial Systems LLC",
+          "Contact Name": "",
+          "Email": "",
+          "Phone": "",
+          "Service Type": "VUMO",
+          "Last Service Date": "2024-03-10",
+          "Next Due Date": "2024-09-10",
+          "Interval Type": "bi-annual",
+          "Custom Interval Months": "",
+          "Status": "pending",
+          "Notes": "Bi-annual service",
+          "Assigned Salesperson Email": "sales@example.com"
+        },
+        {
+          "Company Name": "Manufacturing Co",
+          "Contact Name": "",
+          "Email": "",
+          "Phone": "",
+          "Service Type": "Training",
+          "Last Service Date": "2024-04-01",
+          "Next Due Date": "2025-04-01",
+          "Interval Type": "annual",
+          "Custom Interval Months": "",
+          "Status": "pending",
+          "Notes": "",
+          "Assigned Salesperson Email": ""
+        },
+        {
+          "Company Name": "Power Distribution Inc",
+          "Contact Name": "",
+          "Email": "",
+          "Phone": "",
+          "Service Type": "Switchgear Maintenance (EPM)",
+          "Last Service Date": "2024-05-15",
+          "Next Due Date": "2025-05-15",
+          "Interval Type": "annual",
+          "Custom Interval Months": "",
+          "Status": "pending",
+          "Notes": "",
+          "Assigned Salesperson Email": ""
         }
       ];
 
