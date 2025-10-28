@@ -36,7 +36,7 @@ export default function CalendarPage() {
     queryKey: ['/api/renewals'],
   });
 
-  const { data: users } = useQuery({
+  const { data: users } = useQuery<any[]>({
     queryKey: ['/api/users'],
   });
 
