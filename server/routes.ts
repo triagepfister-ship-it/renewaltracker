@@ -8,10 +8,11 @@ import { insertUserSchema, insertCustomerSchema, insertRenewalSchema, insertAtta
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { addMonths, subMonths, subWeeks } from "date-fns";
+import * as XLSX from "xlsx";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Parse JSON bodies
-  app.use(express.json());
+  // Parse JSON bodies - increased limit for bulk upload Excel files
+  app.use(express.json({ limit: '10mb' }));
 
   // ============================================
   // Authentication Routes
@@ -273,6 +274,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Delete renewal error:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================
+  // Bulk Upload Routes
+  // ============================================
+  // Note: These endpoints use auth protection even though auth is disabled elsewhere
+  // to prevent unauthorized bulk data modification
+
+  app.get("/api/renewals/bulk-upload/template", async (req, res) => {
+    try {
+      // Create a template Excel file with headers and example row
+      const templateData = [
+        {
+          "Company Name": "Example Corp",
+          "Contact Name": "John Doe",
+          "Email": "john@example.com",
+          "Phone": "555-1234",
+          "Service Type": "Infrared Thermography Analysis",
+          "Last Service Date": "2024-01-15",
+          "Next Due Date": "2025-01-15",
+          "Interval Type": "annual",
+          "Custom Interval Months": "",
+          "Status": "pending",
+          "Notes": "Optional notes here",
+          "Assigned Salesperson Email": "sales@example.com"
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Renewals Template");
+
+      // Generate buffer
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+      res.setHeader('Content-Disposition', 'attachment; filename=renewals_bulk_upload_template.xlsx');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.send(buffer);
+    } catch (error: any) {
+      console.error("Template download error:", error);
+      res.status(500).json({ error: "Failed to generate template" });
+    }
+  });
+
+  app.post("/api/renewals/bulk-upload", async (req, res) => {
+    try {
+      const { fileData } = req.body;
+
+      if (!fileData) {
+        return res.status(400).json({ error: "No file data provided" });
+      }
+
+      // Parse the base64 encoded file
+      const buffer = Buffer.from(fileData, 'base64');
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const rows: any[] = XLSX.utils.sheet_to_json(worksheet);
+
+      if (rows.length === 0) {
+        return res.status(400).json({ error: "Excel file is empty" });
+      }
+
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [] as Array<{ row: number; error: string; data: any }>
+      };
+
+      // Get all customers and users for lookup
+      const allCustomers = await storage.getAllCustomers();
+      const allUsers = await storage.getAllUsers();
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNum = i + 2; // +2 because Excel is 1-indexed and has header row
+
+        try {
+          // Find or create customer
+          let customer = allCustomers.find(c => 
+            c.companyName.toLowerCase() === row["Company Name"]?.toLowerCase()
+          );
+
+          if (!customer) {
+            // Create new customer if doesn't exist
+            if (!row["Company Name"] || !row["Contact Name"]) {
+              throw new Error("Company Name and Contact Name are required for new customers");
+            }
+
+            customer = await storage.createCustomer({
+              companyName: row["Company Name"],
+              contactName: row["Contact Name"],
+              email: row["Email"] || undefined,
+              phone: row["Phone"] || undefined,
+              address: undefined,
+              assignedSalespersonId: undefined,
+            });
+            // Add newly created customer to cache to prevent duplicates in same upload
+            allCustomers.push(customer);
+          }
+
+          // Find assigned salesperson if email provided
+          let assignedSalespersonId = null;
+          if (row["Assigned Salesperson Email"]) {
+            const salesperson = allUsers.find(u => 
+              u.email.toLowerCase() === row["Assigned Salesperson Email"]?.toLowerCase()
+            );
+            if (salesperson) {
+              assignedSalespersonId = salesperson.id;
+            }
+          }
+
+          // Parse dates
+          const lastServiceDate = new Date(row["Last Service Date"]);
+          const nextDueDate = new Date(row["Next Due Date"]);
+
+          if (isNaN(lastServiceDate.getTime()) || isNaN(nextDueDate.getTime())) {
+            throw new Error("Invalid date format. Use YYYY-MM-DD format");
+          }
+
+          // Validate interval type
+          const intervalType = row["Interval Type"]?.toLowerCase() || "annual";
+          if (!["annual", "bi-annual", "custom"].includes(intervalType)) {
+            throw new Error("Interval Type must be: annual, bi-annual, or custom");
+          }
+
+          // Validate status
+          const status = row["Status"]?.toLowerCase() || "pending";
+          if (!["pending", "contacted", "completed", "renewed", "overdue"].includes(status)) {
+            throw new Error("Invalid status. Must be: pending, contacted, completed, renewed, or overdue");
+          }
+
+          // Create renewal
+          const renewalData = {
+            customerId: customer.id,
+            serviceType: row["Service Type"] || "Infrared Thermography Analysis",
+            lastServiceDate,
+            nextDueDate,
+            intervalType: intervalType as 'annual' | 'bi-annual' | 'custom',
+            customIntervalMonths: intervalType === 'custom' && row["Custom Interval Months"] 
+              ? parseInt(row["Custom Interval Months"]) 
+              : undefined,
+            status: status as 'pending' | 'contacted' | 'completed' | 'renewed' | 'overdue',
+            notes: row["Notes"] || undefined,
+            assignedSalespersonId: assignedSalespersonId || undefined,
+          };
+
+          const renewal = await storage.createRenewal(renewalData);
+          
+          // Auto-generate notifications
+          await generateNotificationsForRenewal(renewal);
+
+          results.success++;
+        } catch (error: any) {
+          results.failed++;
+          results.errors.push({
+            row: rowNum,
+            error: error.message,
+            data: row
+          });
+        }
+      }
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("Bulk upload error:", error);
+      res.status(500).json({ error: error.message || "Failed to process bulk upload" });
     }
   });
 

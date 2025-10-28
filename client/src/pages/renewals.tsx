@@ -60,6 +60,9 @@ export default function RenewalsPage() {
   const [editingRenewal, setEditingRenewal] = useState<RenewalWithRelations | null>(null);
   const [deletingRenewalId, setDeletingRenewalId] = useState<string | null>(null);
   const [viewingAttachments, setViewingAttachments] = useState<RenewalWithRelations | null>(null);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadResults, setUploadResults] = useState<{ success: number; failed: number; errors: any[] } | null>(null);
   const { toast } = useToast();
 
   const { data: renewals, isLoading } = useQuery<RenewalWithRelations[]>({
@@ -84,6 +87,89 @@ export default function RenewalsPage() {
       });
     },
   });
+
+  const bulkUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onload = async (e) => {
+          try {
+            const base64 = e.target?.result as string;
+            const fileData = base64.split(',')[1];
+            const response = await apiRequest("POST", "/api/renewals/bulk-upload", { fileData });
+            resolve(response);
+          } catch (error) {
+            reject(error);
+          }
+        };
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsDataURL(file);
+      });
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/renewals'] });
+      setUploadResults(data);
+      setUploadFile(null);
+      if (data.failed === 0) {
+        toast({
+          title: "Bulk upload successful",
+          description: `${data.success} renewals imported successfully.`,
+        });
+      } else {
+        toast({
+          title: "Bulk upload completed with errors",
+          description: `${data.success} succeeded, ${data.failed} failed.`,
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to process bulk upload",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await fetch('/api/renewals/bulk-upload/template');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'renewals_bulk_upload_template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast({
+        title: "Template downloaded",
+        description: "Fill in the template and upload it to import renewals.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download template",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadFile(file);
+      setUploadResults(null);
+    }
+  };
+
+  const handleUpload = () => {
+    if (uploadFile) {
+      bulkUploadMutation.mutate(uploadFile);
+    }
+  };
 
   const filteredRenewals = renewals?.filter((renewal) => {
     const matchesSearch =
@@ -120,23 +206,111 @@ export default function RenewalsPage() {
             Track and manage service renewal opportunities
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-create-renewal">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Renewal
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create New Renewal</DialogTitle>
-              <DialogDescription>
-                Add a new renewal record with service interval tracking
-              </DialogDescription>
-            </DialogHeader>
-            <RenewalForm onSuccess={() => setIsCreateDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" data-testid="button-bulk-upload">
+                <Upload className="h-4 w-4 mr-2" />
+                Bulk Upload
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Bulk Upload Renewals</DialogTitle>
+                <DialogDescription>
+                  Upload multiple renewals from an Excel file
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-muted-foreground">
+                    Step 1: Download the template Excel file
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleDownloadTemplate}
+                    data-testid="button-download-template"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Template
+                  </Button>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-muted-foreground">
+                    Step 2: Fill in the template and upload it
+                  </p>
+                  <Input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileChange}
+                    data-testid="input-upload-file"
+                  />
+                  {uploadFile && (
+                    <p className="text-sm text-muted-foreground">
+                      Selected: {uploadFile.name}
+                    </p>
+                  )}
+                </div>
+
+                <Button 
+                  onClick={handleUpload}
+                  disabled={!uploadFile || bulkUploadMutation.isPending}
+                  data-testid="button-upload"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {bulkUploadMutation.isPending ? "Uploading..." : "Upload"}
+                </Button>
+
+                {uploadResults && (
+                  <div className="mt-4 p-4 border rounded-lg space-y-2">
+                    <h4 className="font-semibold">Upload Results</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Successful:</span>
+                        <span className="ml-2 font-semibold text-green-600">{uploadResults.success}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Failed:</span>
+                        <span className="ml-2 font-semibold text-red-600">{uploadResults.failed}</span>
+                      </div>
+                    </div>
+                    {uploadResults.errors.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="text-sm font-semibold mb-2">Errors:</h5>
+                        <div className="max-h-48 overflow-y-auto space-y-2">
+                          {uploadResults.errors.map((error, idx) => (
+                            <div key={idx} className="text-xs p-2 bg-destructive/10 rounded">
+                              <span className="font-semibold">Row {error.row}:</span> {error.error}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-create-renewal">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Renewal
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create New Renewal</DialogTitle>
+                <DialogDescription>
+                  Add a new renewal record with service interval tracking
+                </DialogDescription>
+              </DialogHeader>
+              <RenewalForm onSuccess={() => setIsCreateDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>
