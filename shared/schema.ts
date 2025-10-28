@@ -155,10 +155,14 @@ export const insertCustomerSchema = createInsertSchema(customers).omit({
 }).extend({
   companyName: z.string().min(1, "Company name is required"),
   contactName: z.string().optional().or(z.literal('')),
-  email: z.string().email("Invalid email address").optional().or(z.literal('')),
+  email: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
+    message: "Invalid email address",
+  }),
   phone: z.string().optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
-  salesforceOpportunityUrl: z.string().url("Invalid URL").optional().or(z.literal('')),
+  salesforceOpportunityUrl: z.string().optional().refine((val) => !val || z.string().url().safeParse(val).success, {
+    message: "Invalid URL",
+  }),
 });
 
 export const insertRenewalSchema = createInsertSchema(renewals).omit({
@@ -177,7 +181,9 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
   status: z.enum(['pending', 'contacted', 'completed', 'renewed', 'overdue']).default('pending'),
   notes: z.string().optional(),
   assignedSalespersonId: z.string().optional(),
-  salesforceOpportunityUrl: z.string().url("Invalid URL").optional().or(z.literal('')),
+  salesforceOpportunityUrl: z.string().optional().refine((val) => !val || z.string().url().safeParse(val).success, {
+    message: "Invalid URL",
+  }),
 });
 
 export const insertAttachmentSchema = createInsertSchema(attachments).omit({
