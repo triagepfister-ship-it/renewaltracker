@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { RenewalWithRelations } from "@shared/schema";
+import type { RenewalWithRelations, User } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import {
@@ -56,6 +56,7 @@ import { AttachmentsPanel } from "@/components/attachments-panel";
 export default function RenewalsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [salespersonFilter, setSalespersonFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRenewal, setEditingRenewal] = useState<RenewalWithRelations | null>(null);
   const [deletingRenewalId, setDeletingRenewalId] = useState<string | null>(null);
@@ -68,6 +69,12 @@ export default function RenewalsPage() {
   const { data: renewals, isLoading } = useQuery<RenewalWithRelations[]>({
     queryKey: ['/api/renewals'],
   });
+
+  const { data: users } = useQuery<User[]>({
+    queryKey: ['/api/users'],
+  });
+
+  const salespersons = users?.filter(u => u.status === 'active') || [];
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/renewals/${id}`, {}),
@@ -176,7 +183,8 @@ export default function RenewalsPage() {
       renewal.customer?.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       renewal.serviceType.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || renewal.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesSalesperson = salespersonFilter === "all" || renewal.assignedSalespersonId === salespersonFilter;
+    return matchesSearch && matchesStatus && matchesSalesperson;
   }) || [];
 
   const getStatusBadgeVariant = (status: string) => {
@@ -339,6 +347,19 @@ export default function RenewalsPage() {
                 <SelectItem value="overdue">Overdue</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={salespersonFilter} onValueChange={setSalespersonFilter}>
+              <SelectTrigger className="w-full sm:w-48" data-testid="select-salesperson-filter">
+                <SelectValue placeholder="Filter by salesperson" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Salespeople</SelectItem>
+                {salespersons.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -352,9 +373,9 @@ export default function RenewalsPage() {
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
               <p className="text-sm text-muted-foreground mb-4">
-                {searchQuery || statusFilter !== "all" ? "No renewals found matching your filters" : "No renewals yet"}
+                {searchQuery || statusFilter !== "all" || salespersonFilter !== "all" ? "No renewals found matching your filters" : "No renewals yet"}
               </p>
-              {!searchQuery && statusFilter === "all" && (
+              {!searchQuery && statusFilter === "all" && salespersonFilter === "all" && (
                 <Button onClick={() => setIsCreateDialogOpen(true)} variant="outline">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Renewal

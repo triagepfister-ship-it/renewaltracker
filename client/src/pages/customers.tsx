@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Search, Edit, Trash2, User, ChevronDown, ChevronRight, Calendar, Clock, FileText } from "lucide-react";
+import { Plus, Search, Edit, Trash2, User as UserIcon, ChevronDown, ChevronRight, Calendar, Clock, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,9 +14,16 @@ import {
 } from "@/components/ui/dialog";
 import { CustomerForm } from "@/components/customer-form";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { CustomerWithRelations } from "@shared/schema";
+import type { CustomerWithRelations, User } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -229,6 +236,7 @@ function CustomerRow({ customer, onEdit, onDelete }: CustomerRowProps) {
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [salespersonFilter, setSalespersonFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithRelations | null>(null);
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
@@ -237,6 +245,12 @@ export default function CustomersPage() {
   const { data: customers, isLoading } = useQuery<CustomerWithRelations[]>({
     queryKey: ['/api/customers'],
   });
+
+  const { data: users } = useQuery<User[]>({
+    queryKey: ['/api/users'],
+  });
+
+  const salespersons = users?.filter(u => u.status === 'active') || [];
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/customers/${id}`, {}),
@@ -257,11 +271,14 @@ export default function CustomersPage() {
     },
   });
 
-  const filteredCustomers = customers?.filter((customer) =>
-    customer.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.contactName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredCustomers = customers?.filter((customer) => {
+    const matchesSearch =
+      customer.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.contactName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSalesperson = salespersonFilter === "all" || customer.assignedSalespersonId === salespersonFilter;
+    return matchesSearch && matchesSalesperson;
+  }) || [];
 
   return (
     <div className="space-y-6">
@@ -293,7 +310,7 @@ export default function CustomersPage() {
 
       <Card>
         <CardHeader className="pb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -304,6 +321,19 @@ export default function CustomersPage() {
                 data-testid="input-search-customers"
               />
             </div>
+            <Select value={salespersonFilter} onValueChange={setSalespersonFilter}>
+              <SelectTrigger className="w-full sm:w-48" data-testid="select-salesperson-filter-customers">
+                <SelectValue placeholder="Filter by salesperson" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Salespeople</SelectItem>
+                {salespersons.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -315,11 +345,11 @@ export default function CustomersPage() {
             </div>
           ) : filteredCustomers.length === 0 ? (
             <div className="text-center py-12">
-              <User className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <UserIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
               <p className="text-sm text-muted-foreground mb-4">
-                {searchQuery ? "No customers found matching your search" : "No customers yet"}
+                {searchQuery || salespersonFilter !== "all" ? "No customers found matching your filters" : "No customers yet"}
               </p>
-              {!searchQuery && (
+              {!searchQuery && salespersonFilter === "all" && (
                 <Button onClick={() => setIsCreateDialogOpen(true)} variant="outline">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Customer
