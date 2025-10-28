@@ -150,10 +150,10 @@ export const insertCustomerSchema = createInsertSchema(customers).omit({
   createdAt: true,
 }).extend({
   companyName: z.string().min(1, "Company name is required"),
-  contactName: z.string().min(1, "Contact name is required"),
+  contactName: z.string().optional().or(z.literal('')),
   email: z.string().email("Invalid email address").optional().or(z.literal('')),
-  phone: z.string().optional(),
-  address: z.string().optional(),
+  phone: z.string().optional().or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
 });
 
 export const insertRenewalSchema = createInsertSchema(renewals).omit({

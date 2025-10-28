@@ -123,7 +123,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             name="contactName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Person *</FormLabel>
+                <FormLabel>Customer Contact Name</FormLabel>
                 <FormControl>
                   <Input placeholder="John Doe" {...field} data-testid="input-contact-name" />
                 </FormControl>
@@ -139,7 +139,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Customer Contact Email</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="john@acme.com" {...field} data-testid="input-customer-email" />
                 </FormControl>
@@ -167,7 +167,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Site Location</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="123 Main St, City, State ZIP"
