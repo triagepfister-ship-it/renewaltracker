@@ -2,7 +2,20 @@
 
 ## Overview
 
-This is a professional renewal tracking system designed for managing infrared thermography service renewals. The application helps businesses track customer service intervals, automate renewal notifications, and manage the complete lifecycle of thermography service contracts. It features role-based access for administrators and salespeople, with capabilities for customer management, renewal tracking, calendar views, and document attachment handling.
+This is a professional renewal tracking system designed for managing infrared thermography service renewals. The application helps businesses track customer service intervals, automate renewal notifications, and manage the complete lifecycle of thermography service contracts. It features role-based access for administrators and salespeople, with capabilities for customer management, renewal tracking, calendar views, document attachment handling, and bulk Excel import for renewals.
+
+## Recent Changes (October 28, 2025)
+
+### Bulk Upload Feature
+- Added Excel-based bulk import functionality for renewals
+- Template download endpoint at GET `/api/renewals/bulk-upload/template`
+- Bulk upload processing endpoint at POST `/api/renewals/bulk-upload`
+- Frontend UI with dialog for template download, file selection, and upload results display
+- Automatic customer creation for new companies found in Excel uploads
+- Detailed error reporting for failed rows with row numbers and specific error messages
+- Increased JSON body limit to 10MB to support larger Excel files
+- Customer cache optimization to prevent duplicate creation during same upload session
+- Library: xlsx package for Excel file parsing (.xls and .xlsx formats)
 
 ## User Preferences
 
