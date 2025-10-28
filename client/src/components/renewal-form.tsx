@@ -65,6 +65,8 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
     defaultValues: {
       customerId: renewal?.customerId || "",
       serviceType: renewal?.serviceType || "Infrared Thermography Analysis",
+      siteCode: renewal?.siteCode || "",
+      referenceId: renewal?.referenceId || undefined,
       lastServiceDate: renewal?.lastServiceDate ? new Date(renewal.lastServiceDate) : new Date(),
       nextDueDate: renewal?.nextDueDate ? new Date(renewal.nextDueDate) : addMonths(new Date(), 12),
       intervalType: renewal?.intervalType || "annual",
@@ -72,6 +74,7 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
       status: renewal?.status || "pending",
       notes: renewal?.notes || "",
       assignedSalespersonId: renewal?.assignedSalespersonId || undefined,
+      salesforceOpportunityUrl: renewal?.salesforceOpportunityUrl || "",
     },
   });
 
@@ -87,6 +90,12 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
       nextDate = addMonths(lastDate, 12);
     } else if (intervalType === "bi-annual") {
       nextDate = addMonths(lastDate, 6);
+    } else if (intervalType === "2-year") {
+      nextDate = addMonths(lastDate, 24);
+    } else if (intervalType === "3-year") {
+      nextDate = addMonths(lastDate, 36);
+    } else if (intervalType === "5-year") {
+      nextDate = addMonths(lastDate, 60);
     }
     
     form.setValue("nextDueDate", nextDate);
@@ -235,6 +244,61 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
         <div className="grid gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
+            name="siteCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Site Code</FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">S-</span>
+                    <Input
+                      placeholder="12345"
+                      maxLength={5}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+                        field.onChange(value);
+                      }}
+                      data-testid="input-site-code"
+                    />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Enter 5-digit site code (displayed as S-xxxxx)
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="referenceId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reference ID</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Reference ID"
+                    {...field}
+                    value={field.value || ''}
+                    onChange={(e) => {
+                      const value = e.target.value === '' ? undefined : parseInt(e.target.value);
+                      field.onChange(value);
+                    }}
+                    data-testid="input-reference-id"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <FormField
+            control={form.control}
             name="lastServiceDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
@@ -330,6 +394,9 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
                   <SelectContent>
                     <SelectItem value="annual">Annual (12 months)</SelectItem>
                     <SelectItem value="bi-annual">Bi-Annual (6 months)</SelectItem>
+                    <SelectItem value="2-year">2 Year (24 months)</SelectItem>
+                    <SelectItem value="3-year">3 Year (36 months)</SelectItem>
+                    <SelectItem value="5-year">5 Year (60 months)</SelectItem>
                     <SelectItem value="custom">Custom Interval</SelectItem>
                   </SelectContent>
                 </Select>
@@ -434,6 +501,25 @@ export function RenewalForm({ renewal, onSuccess }: RenewalFormProps) {
                   className="resize-none min-h-24"
                   {...field}
                   data-testid="input-notes"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="salesforceOpportunityUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salesforce Opportunity URL</FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="https://..."
+                  {...field}
+                  data-testid="input-salesforce-url"
                 />
               </FormControl>
               <FormMessage />
