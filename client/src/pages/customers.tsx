@@ -48,9 +48,10 @@ interface CustomerRowProps {
   onEdit: (customer: CustomerWithRelations) => void;
   onDelete: (id: string) => void;
   onAddRenewal: (customer: CustomerWithRelations) => void;
+  onEditRenewal: (renewal: any) => void;
 }
 
-function CustomerRow({ customer, onEdit, onDelete, onAddRenewal }: CustomerRowProps) {
+function CustomerRow({ customer, onEdit, onDelete, onAddRenewal, onEditRenewal }: CustomerRowProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: renewals, isLoading: renewalsLoading } = useQuery<any[]>({
@@ -189,34 +190,45 @@ function CustomerRow({ customer, onEdit, onDelete, onAddRenewal }: CustomerRowPr
                     className="bg-background border rounded-md p-3"
                     data-testid={`renewal-item-${renewal.id}`}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                      <div>
-                        <div className="text-xs text-muted-foreground mb-1">Service Type</div>
-                        <div className="text-sm font-medium">{renewal.serviceType}</div>
-                      </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Service Type</div>
+                          <div className="text-sm font-medium">{renewal.serviceType}</div>
+                        </div>
 
-                      <div>
-                        <div className="text-xs text-muted-foreground mb-1">Last Service</div>
-                        <div className="text-sm font-mono">
-                          {format(new Date(renewal.lastServiceDate), 'MMM dd, yyyy')}
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Last Service</div>
+                          <div className="text-sm font-mono">
+                            {format(new Date(renewal.lastServiceDate), 'MMM dd, yyyy')}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Next Due</div>
+                          <div className="text-sm font-mono font-medium">
+                            {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {getIntervalLabel(renewal.intervalType, renewal.customIntervalMonths)}
+                          </Badge>
+                          <Badge className={`text-xs ${getStatusColor(renewal.status)}`}>
+                            {renewal.status}
+                          </Badge>
                         </div>
                       </div>
-
-                      <div>
-                        <div className="text-xs text-muted-foreground mb-1">Next Due</div>
-                        <div className="text-sm font-mono font-medium">
-                          {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {getIntervalLabel(renewal.intervalType, renewal.customIntervalMonths)}
-                        </Badge>
-                        <Badge className={`text-xs ${getStatusColor(renewal.status)}`}>
-                          {renewal.status}
-                        </Badge>
-                      </div>
+                      
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEditRenewal(renewal)}
+                        data-testid={`button-edit-renewal-${renewal.id}`}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     </div>
 
                     {renewal.notes && (
@@ -252,6 +264,7 @@ export default function CustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithRelations | null>(null);
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
   const [renewalCustomer, setRenewalCustomer] = useState<CustomerWithRelations | null>(null);
+  const [editingRenewal, setEditingRenewal] = useState<any | null>(null);
   const { toast } = useToast();
 
   const { data: customers, isLoading } = useQuery<CustomerWithRelations[]>({
@@ -377,6 +390,7 @@ export default function CustomersPage() {
                   onEdit={setEditingCustomer}
                   onDelete={setDeletingCustomerId}
                   onAddRenewal={setRenewalCustomer}
+                  onEditRenewal={setEditingRenewal}
                 />
               ))}
             </div>
@@ -436,6 +450,27 @@ export default function CustomersPage() {
               onSuccess={() => {
                 setRenewalCustomer(null);
                 queryClient.invalidateQueries({ queryKey: ['/api/customers', renewalCustomer.id, 'renewals'] });
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {editingRenewal && (
+        <Dialog open={!!editingRenewal} onOpenChange={() => setEditingRenewal(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Renewal</DialogTitle>
+              <DialogDescription>
+                Update renewal information
+              </DialogDescription>
+            </DialogHeader>
+            <RenewalForm
+              renewal={editingRenewal}
+              onSuccess={() => {
+                setEditingRenewal(null);
+                queryClient.invalidateQueries({ queryKey: ['/api/renewals'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/customers', editingRenewal.customerId, 'renewals'] });
               }}
             />
           </DialogContent>
