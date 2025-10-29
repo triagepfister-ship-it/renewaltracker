@@ -20,10 +20,12 @@ This is a professional renewal tracking system designed for managing infrared th
 - Moved Site Location (address) field from customers table to renewals table
 - REMOVED address field from Customer form (no longer stored at customer level)
 - ADDED Site Location field to Renewal form (now stored per renewal/site)
-- Updated dashboard to display renewal.address instead of customer.address
-- Updated calendar to display renewal.address instead of customer.address
-- Updated Customers page to remove address column display
-- Location displayed in small, muted text below company name in dashboard and calendar
+- Updated dashboard to display renewal.address in upcoming and overdue sections
+- Updated calendar to display renewal.address on renewal cards
+- Updated renewals page table to display renewal.address below company name
+- Updated customers page nested renewals to display site location field
+- Enabled search by site location on renewals page
+- Location consistently displayed in small, muted text below company name across all views
 - Production database migration needed: See SQL commands in scratchpad
 
 ### Branding Updates
