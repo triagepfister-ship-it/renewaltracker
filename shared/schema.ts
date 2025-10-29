@@ -178,7 +178,7 @@ export const insertRenewalSchema = createInsertSchema(renewals).omit({
   nextDueDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
   intervalType: z.enum(['annual', 'bi-annual', '2-year', '3-year', '5-year', 'custom']),
   customIntervalMonths: z.number().int().positive().optional(),
-  status: z.enum(['contacted', 'completed', 'dead']).default('contacted'),
+  status: z.enum(['pending', 'contacted', 'completed', 'dead']).default('contacted'),
   notes: z.string().optional(),
   assignedSalespersonId: z.string().optional(),
   salesforceOpportunityUrl: z.string().optional().refine((val) => !val || z.string().url().safeParse(val).success, {

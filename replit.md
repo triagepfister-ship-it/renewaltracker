@@ -6,15 +6,13 @@ This is a professional renewal tracking system designed for managing infrared th
 
 ## Recent Changes (October 29, 2025)
 
-### Simplified Renewal Status System
-- Reduced renewal statuses from 5 to 3 options: "Contacted", "Completed", "Dead"
-- Removed old statuses: "Pending", "Renewed", "Overdue"
-- Dashboard filters now exclude "Dead" status from upcoming and overdue renewals sections
+### Renewal Status System
+- Current renewal statuses: "Pending", "Contacted", "Completed", "Dead"
+- Dashboard filters exclude "Dead" status from upcoming and overdue renewals sections
 - Added MessageCircle icon indicator for "Contacted" status in upcoming renewals
-- Updated calendar view with new 3-status color scheme (Blue=Contacted, Green=Completed, Red=Dead)
+- Calendar view color scheme: Yellow=Pending, Blue=Contacted, Green=Completed, Red=Dead
 - Updated all status dropdowns and filters across the application
-- Default status for new renewals changed to "Contacted"
-- Production database migration needed: See SQL commands in scratchpad
+- Default status for new renewals: "Contacted"
 
 ### Site Location Field Migration
 - Moved Site Location (address) field from customers table to renewals table
