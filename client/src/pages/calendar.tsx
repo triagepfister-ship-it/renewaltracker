@@ -62,6 +62,7 @@ export default function CalendarPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'pending': return 'border-l-yellow-500';
       case 'contacted': return 'border-l-blue-500';
       case 'completed': return 'border-l-green-500';
       case 'dead': return 'border-l-red-500';
@@ -211,7 +212,11 @@ export default function CalendarPage() {
           <CardTitle className="text-base">Legend</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 bg-yellow-500 rounded"></div>
+              <span className="text-sm">Pending</span>
+            </div>
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 bg-blue-500 rounded"></div>
               <span className="text-sm">Contacted</span>

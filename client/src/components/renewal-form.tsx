@@ -469,6 +469,7 @@ export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, 
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="contacted">Contacted</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="dead">Dead</SelectItem>

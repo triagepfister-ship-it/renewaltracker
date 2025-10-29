@@ -70,6 +70,7 @@ export default function DashboardPage() {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
+      case 'pending': return 'outline';
       case 'contacted': return 'secondary';
       case 'completed': return 'default';
       case 'dead': return 'destructive';

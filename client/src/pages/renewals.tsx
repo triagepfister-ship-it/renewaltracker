@@ -190,6 +190,7 @@ export default function RenewalsPage() {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
+      case 'pending': return 'outline';
       case 'contacted': return 'secondary';
       case 'completed': return 'default';
       case 'dead': return 'destructive';
@@ -339,6 +340,7 @@ export default function RenewalsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="contacted">Contacted</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="dead">Dead</SelectItem>
