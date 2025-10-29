@@ -73,7 +73,7 @@ export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, 
       nextDueDate: renewal?.nextDueDate ? new Date(renewal.nextDueDate) : addMonths(new Date(), 12),
       intervalType: renewal?.intervalType || "annual",
       customIntervalMonths: renewal?.customIntervalMonths || undefined,
-      status: renewal?.status || "pending",
+      status: renewal?.status || "contacted",
       notes: renewal?.notes || "",
       assignedSalespersonId: renewal?.assignedSalespersonId || initialSalespersonId || undefined,
       salesforceOpportunityUrl: renewal?.salesforceOpportunityUrl || "",
@@ -449,11 +449,9 @@ export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, 
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="contacted">Contacted</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="renewed">Renewed</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
+                    <SelectItem value="dead">Dead</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

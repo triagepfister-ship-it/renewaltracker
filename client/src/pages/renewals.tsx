@@ -189,11 +189,9 @@ export default function RenewalsPage() {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'pending': return 'outline';
       case 'contacted': return 'secondary';
       case 'completed': return 'default';
-      case 'renewed': return 'default';
-      case 'overdue': return 'destructive';
+      case 'dead': return 'destructive';
       default: return 'outline';
     }
   };
@@ -340,11 +338,9 @@ export default function RenewalsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="contacted">Contacted</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="renewed">Renewed</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
+                <SelectItem value="dead">Dead</SelectItem>
               </SelectContent>
             </Select>
             <Select value={salespersonFilter} onValueChange={setSalespersonFilter}>

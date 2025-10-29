@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, FileText, Bell, TrendingUp, AlertCircle } from "lucide-react";
+import { Calendar, Users, FileText, Bell, TrendingUp, AlertCircle, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format, isAfter, isBefore, addMonths } from "date-fns";
 import type { RenewalWithRelations, Notification } from "@shared/schema";
@@ -25,12 +25,12 @@ export default function DashboardPage() {
   const upcomingRenewals = renewals?.filter(r =>
     isAfter(new Date(r.nextDueDate), now) &&
     isBefore(new Date(r.nextDueDate), addMonths(now, 2)) &&
-    (r.status === 'pending' || r.status === 'contacted')
+    r.status === 'contacted'
   ) || [];
 
   const overdueRenewals = renewals?.filter(r =>
     isBefore(new Date(r.nextDueDate), now) &&
-    (r.status === 'pending' || r.status === 'contacted')
+    r.status === 'contacted'
   ) || [];
 
   const totalRenewals = renewals?.length || 0;
@@ -70,11 +70,9 @@ export default function DashboardPage() {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'pending': return 'outline';
       case 'contacted': return 'secondary';
       case 'completed': return 'default';
-      case 'renewed': return 'default';
-      case 'overdue': return 'destructive';
+      case 'dead': return 'destructive';
       default: return 'outline';
     }
   };
@@ -141,9 +139,14 @@ export default function DashboardPage() {
                     data-testid={`card-renewal-${renewal.id}`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">
-                        {renewal.customer?.companyName || 'Unknown Customer'}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">
+                          {renewal.customer?.companyName || 'Unknown Customer'}
+                        </p>
+                        {renewal.status === 'contacted' && (
+                          <MessageCircle className="h-4 w-4 text-blue-600 flex-shrink-0" data-testid="icon-contacted" />
+                        )}
+                      </div>
                       {renewal.customer?.address && (
                         <p className="text-xs text-muted-foreground truncate">
                           {renewal.customer.address}

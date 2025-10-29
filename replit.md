@@ -4,7 +4,30 @@
 
 This is a professional renewal tracking system designed for managing infrared thermography service renewals. The application helps businesses track customer service intervals, automate renewal notifications, and manage the complete lifecycle of thermography service contracts. It features role-based access for administrators and salespeople, with capabilities for customer management, renewal tracking, calendar views, document attachment handling, and bulk Excel import for renewals.
 
-## Recent Changes (October 28, 2025)
+## Recent Changes (October 29, 2025)
+
+### Simplified Renewal Status System
+- Reduced renewal statuses from 5 to 3 options: "Contacted", "Completed", "Dead"
+- Removed old statuses: "Pending", "Renewed", "Overdue"
+- Dashboard filters now exclude "Dead" status from upcoming and overdue renewals sections
+- Added MessageCircle icon indicator for "Contacted" status in upcoming renewals
+- Updated calendar view with new 3-status color scheme (Blue=Contacted, Green=Completed, Red=Dead)
+- Updated all status dropdowns and filters across the application
+- Default status for new renewals changed to "Contacted"
+- Production database migration needed: See SQL commands in scratchpad
+
+### Site Location Display
+- Added Site Location (customer address) to dashboard upcoming renewals section
+- Added Site Location to dashboard overdue renewals section
+- Added Site Location to calendar view renewal cards
+- Location displayed in small, muted text for clean hierarchy
+
+### Branding Updates
+- Rebranded application as "ELSE Renewals Tracker - Advisory Services"
+- Changed app icon from generic document to ScanLine icon (infrared camera representation)
+- Updated browser window title to reflect ELSE branding
+
+## Previous Changes (October 28, 2025)
 
 ### ABB Industrial Design System
 - Redesigned application with ABB LTD branding and industrial aesthetic

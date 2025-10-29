@@ -38,7 +38,7 @@ export const renewals = pgTable("renewals", {
   nextDueDate: timestamp("next_due_date").notNull(),
   intervalType: text("interval_type").notNull().$type<'annual' | 'bi-annual' | '2-year' | '3-year' | '5-year' | 'custom'>().default('annual'),
   customIntervalMonths: integer("custom_interval_months"),
-  status: text("status").notNull().$type<'pending' | 'contacted' | 'completed' | 'renewed' | 'overdue'>().default('pending'),
+  status: text("status").notNull().$type<'contacted' | 'completed' | 'dead'>().default('contacted'),
   notes: text("notes"),
   assignedSalespersonId: varchar("assigned_salesperson_id").references(() => users.id),
   salesforceOpportunityUrl: text("salesforce_opportunity_url"),
