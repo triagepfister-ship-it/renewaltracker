@@ -181,7 +181,8 @@ export default function RenewalsPage() {
   const filteredRenewals = renewals?.filter((renewal) => {
     const matchesSearch =
       renewal.customer?.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      renewal.serviceType.toLowerCase().includes(searchQuery.toLowerCase());
+      renewal.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (renewal.address && renewal.address.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === "all" || renewal.status === statusFilter;
     const matchesSalesperson = salespersonFilter === "all" || renewal.assignedSalespersonId === salespersonFilter;
     return matchesSearch && matchesStatus && matchesSalesperson;
