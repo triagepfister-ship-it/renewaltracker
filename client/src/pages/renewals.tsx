@@ -396,8 +396,15 @@ export default function RenewalsPage() {
                 <TableBody>
                   {filteredRenewals.map((renewal) => (
                     <TableRow key={renewal.id} data-testid={`row-renewal-${renewal.id}`}>
-                      <TableCell className="font-medium">
-                        {renewal.customer?.companyName || 'Unknown'}
+                      <TableCell>
+                        <div className="font-medium">
+                          {renewal.customer?.companyName || 'Unknown'}
+                        </div>
+                        {renewal.address && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {renewal.address}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>{renewal.serviceType}</TableCell>
                       <TableCell className="font-mono text-sm">

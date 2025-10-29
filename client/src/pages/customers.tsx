@@ -185,33 +185,42 @@ function CustomerRow({ customer, onEdit, onDelete, onAddRenewal, onEditRenewal }
                     data-testid={`renewal-item-${renewal.id}`}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <div>
-                          <div className="text-xs text-muted-foreground mb-1">Service Type</div>
-                          <div className="text-sm font-medium">{renewal.serviceType}</div>
-                        </div>
-
-                        <div>
-                          <div className="text-xs text-muted-foreground mb-1">Last Service</div>
-                          <div className="text-sm font-mono">
-                            {format(new Date(renewal.lastServiceDate), 'MMM dd, yyyy')}
+                      <div className="flex-1 space-y-3">
+                        {renewal.address && (
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Site Location</div>
+                            <div className="text-sm">{renewal.address}</div>
                           </div>
-                        </div>
-
-                        <div>
-                          <div className="text-xs text-muted-foreground mb-1">Next Due</div>
-                          <div className="text-sm font-mono font-medium">
-                            {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
+                        )}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Service Type</div>
+                            <div className="text-sm font-medium">{renewal.serviceType}</div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {getIntervalLabel(renewal.intervalType, renewal.customIntervalMonths)}
-                          </Badge>
-                          <Badge className={`text-xs ${getStatusColor(renewal.status)}`}>
-                            {renewal.status}
-                          </Badge>
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Last Service</div>
+                            <div className="text-sm font-mono">
+                              {format(new Date(renewal.lastServiceDate), 'MMM dd, yyyy')}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Next Due</div>
+                            <div className="text-sm font-mono font-medium">
+                              {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {getIntervalLabel(renewal.intervalType, renewal.customIntervalMonths)}
+                            </Badge>
+                            <Badge className={`text-xs ${getStatusColor(renewal.status)}`}>
+                              {renewal.status}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                       
