@@ -144,6 +144,11 @@ export default function DashboardPage() {
                       <p className="font-medium truncate">
                         {renewal.customer?.companyName || 'Unknown Customer'}
                       </p>
+                      {renewal.customer?.address && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {renewal.customer.address}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground font-mono">
                         Due: {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
                       </p>
@@ -191,6 +196,11 @@ export default function DashboardPage() {
                       <p className="font-medium truncate">
                         {renewal.customer?.companyName || 'Unknown Customer'}
                       </p>
+                      {renewal.customer?.address && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {renewal.customer.address}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground font-mono">
                         Due: {format(new Date(renewal.nextDueDate), 'MMM dd, yyyy')}
                       </p>

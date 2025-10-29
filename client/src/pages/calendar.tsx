@@ -180,11 +180,16 @@ export default function CalendarPage() {
                             key={renewal.id}
                             className={`text-xs p-2 rounded border-l-2 bg-card ${getStatusColor(renewal.status)} hover-elevate cursor-pointer`}
                             data-testid={`calendar-renewal-${renewal.id}`}
-                            title={`${renewal.customer?.companyName} - ${renewal.serviceType}`}
+                            title={`${renewal.customer?.companyName} - ${renewal.serviceType}${renewal.customer?.address ? ` - ${renewal.customer.address}` : ''}`}
                           >
                             <p className="font-medium truncate">
                               {renewal.customer?.companyName}
                             </p>
+                            {renewal.customer?.address && (
+                              <p className="text-[10px] text-muted-foreground truncate">
+                                {renewal.customer.address}
+                              </p>
+                            )}
                             <Badge
                               variant="outline"
                               className="text-[10px] h-4 px-1 mt-1"
