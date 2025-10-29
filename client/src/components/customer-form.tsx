@@ -47,7 +47,6 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       contactName: customer?.contactName || "",
       email: customer?.email || "",
       phone: customer?.phone || "",
-      address: customer?.address || "",
       assignedSalespersonId: customer?.assignedSalespersonId || undefined,
       salesforceOpportunityUrl: customer?.salesforceOpportunityUrl || "",
     },
@@ -162,25 +161,6 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Site Location</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="123 Main St, City, State ZIP"
-                  className="resize-none"
-                  {...field}
-                  data-testid="input-address"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}

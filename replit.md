@@ -16,11 +16,15 @@ This is a professional renewal tracking system designed for managing infrared th
 - Default status for new renewals changed to "Contacted"
 - Production database migration needed: See SQL commands in scratchpad
 
-### Site Location Display
-- Added Site Location (customer address) to dashboard upcoming renewals section
-- Added Site Location to dashboard overdue renewals section
-- Added Site Location to calendar view renewal cards
-- Location displayed in small, muted text for clean hierarchy
+### Site Location Field Migration
+- Moved Site Location (address) field from customers table to renewals table
+- REMOVED address field from Customer form (no longer stored at customer level)
+- ADDED Site Location field to Renewal form (now stored per renewal/site)
+- Updated dashboard to display renewal.address instead of customer.address
+- Updated calendar to display renewal.address instead of customer.address
+- Updated Customers page to remove address column display
+- Location displayed in small, muted text below company name in dashboard and calendar
+- Production database migration needed: See SQL commands in scratchpad
 
 ### Branding Updates
 - Rebranded application as "ELSE Renewals Tracker - Advisory Services"

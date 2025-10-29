@@ -69,6 +69,7 @@ export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, 
       serviceType: renewal?.serviceType || "Infrared Thermography Analysis",
       siteCode: renewal?.siteCode || "",
       referenceId: renewal?.referenceId || undefined,
+      address: renewal?.address || "",
       lastServiceDate: renewal?.lastServiceDate ? new Date(renewal.lastServiceDate) : new Date(),
       nextDueDate: renewal?.nextDueDate ? new Date(renewal.nextDueDate) : addMonths(new Date(), 12),
       intervalType: renewal?.intervalType || "annual",
@@ -297,6 +298,25 @@ export function RenewalForm({ renewal, initialCustomerId, initialSalespersonId, 
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site Location</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="123 Main St, City, State ZIP"
+                  className="resize-none"
+                  {...field}
+                  data-testid="input-address"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid gap-6 md:grid-cols-2">
           <FormField

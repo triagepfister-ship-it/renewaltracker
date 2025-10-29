@@ -118,12 +118,6 @@ function CustomerRow({ customer, onEdit, onDelete, onAddRenewal, onEditRenewal }
               <div className="text-muted-foreground">{customer.phone || '—'}</div>
             </div>
 
-            <div className="text-sm">
-              {customer.address && (
-                <div className="text-muted-foreground">{customer.address}</div>
-              )}
-            </div>
-
             <div>
               {customer.assignedSalesperson ? (
                 <Badge variant="secondary">

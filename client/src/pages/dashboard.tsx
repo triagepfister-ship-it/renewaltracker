@@ -147,9 +147,9 @@ export default function DashboardPage() {
                           <MessageCircle className="h-4 w-4 text-blue-600 flex-shrink-0" data-testid="icon-contacted" />
                         )}
                       </div>
-                      {renewal.customer?.address && (
+                      {renewal.address && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {renewal.customer.address}
+                          {renewal.address}
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground font-mono">
@@ -199,9 +199,9 @@ export default function DashboardPage() {
                       <p className="font-medium truncate">
                         {renewal.customer?.companyName || 'Unknown Customer'}
                       </p>
-                      {renewal.customer?.address && (
+                      {renewal.address && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {renewal.customer.address}
+                          {renewal.address}
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground font-mono">
